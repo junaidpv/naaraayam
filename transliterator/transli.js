@@ -167,7 +167,7 @@ var rules = {
 '^Z$':'ശ്ശ്',
 '^a$':'അ',
 '^b$':'ബ്',
-'^c$':'ച്',
+'^c$':'ക്',
 '^d$':'ദ്',
 '^e$':'എ',
 '^f$':'ഫ്',
@@ -195,7 +195,13 @@ var rules = {
 '^_$':'\u200c'
 };
 
+var memrules = {
+'^ക്h$': ['^.*\sc$', 'ച്']
+};
+// defining to store state info
 var trasliteration_fields = {};
+
+var previous_sequence = '';
 
 /**
  * from Alex who wrote comment for http://blog.vishalon.net/index.php/javascript-getting-and-setting-caret-position-in-textarea/
@@ -304,17 +310,37 @@ function trans(lastpart)
 	var i=0;
 	var part1 = lastpart;
 	var part2 = lastpart;
-outerloop:
+	var found = false;
+outerloop1:
 	for(i=0; i< len; i++)
 	{
 		var toTrans = lastpart.substring(i, len);
-		for(var key in rules)
+		for(var key in memrules)
 		{
-			if((new RegExp(key)).test(toTrans))
+			//alert("Last: "+previous_sequence);
+			if((new RegExp(key)).test(toTrans) && (new RegExp(previous_sequence)).test(memrules[key][0]))
 			{
 				part1 = toTrans;
-				part2 = toTrans.replace(RegExp(key), rules[key]);
-				break outerloop;
+				part2 = toTrans.replace(RegExp(key), memrules[key][1]);
+				found = true;
+				break outerloop1;
+			}
+		}
+	}
+	if(!found)
+	{
+	outerloop2:
+		for(i=0; i< len; i++)
+		{
+			var toTrans = lastpart.substring(i, len);
+			for(var key in rules)
+			{
+				if((new RegExp(key)).test(toTrans))
+				{
+					part1 = toTrans;
+					part2 = toTrans.replace(RegExp(key), rules[key]);
+					break outerloop2;
+				}
 			}
 		}
 	}
@@ -326,6 +352,7 @@ outerloop:
 function tiKeyPressed(event) {
     var e = event || window.event;
     var code = e.charCode || e.keyCode;
+	if (code == 8 ) { previous_sequence = ''; return true; } // Backspace
     // If this keystroke is a function key of any kind, do not filter it
     if (e.charCode == 0) return true;       // Function key (Firefox only)
     if (e.ctrlKey || e.altKey) // Ctrl or Alt held down
@@ -348,8 +375,10 @@ function tiKeyPressed(event) {
 				return false;
 			}
 		}
-		else return true;
+		return true;
 	}
+	
+	
     if (code < 32) return true;             // ASCII control character
 	if(trasliteration_fields[this.id])
 	{
@@ -361,6 +390,8 @@ function tiKeyPressed(event) {
 		var newText = replaceTransStringAtCaret(targetElement.value, transPair[0].length, transPair[1], oldCaretPosition);
 		targetElement.value = newText;
 		setCaretAtNewPosition(targetElement, transPair[0], transPair[1], oldCaretPosition);
+		previous_sequence += c;
+		if(previous_sequence.length > 6 ) previous_sequence = previous_sequence.substring(previous_sequence.length-6);
 		return false;
 	}
     return true;
