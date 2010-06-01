@@ -4,7 +4,10 @@
  * @date 2010-05-19
  * License: GPLv3
  */
-var mlrules = {
+/**
+ * Define your own regular expression rules here. Last character will be the user type one.
+*/
+var rules = {
 '^([ക-ഹ])്ര്\\^$':'$1ൃ',
 '^ന്ന്j$':'ഞ്ഞ്',
 '^ന്ന്g$':'ങ്ങ്',
@@ -284,11 +287,17 @@ function replaceTransStringAtCaret(text, oldStringLength, newString, caretPositi
 	var lastStr = text.substring(caretPosition, text.length);
 	return firstStr+ newString + lastStr;
 }
+/* Helps to change position of caret to desired location */
 function setCaretAtNewPosition(control, oldString, newString, oldCaretPosition)
 {
 	var newCaretPosition = oldCaretPosition - oldString.length + newString.length + 1 
 	setCaretPosition(control, newCaretPosition);
 }
+/*
+ * This function will take a string to check against regular expression rules in the rules array.
+ * It will return a two memeber array, having given string as first member and replacement string as
+ * second memeber. If corresponding replacement could not be found then second string will be too given string
+*/
 function trans(lastpart)
 {
 	var len = lastpart.length;
@@ -299,12 +308,12 @@ outerloop:
 	for(i=0; i< len; i++)
 	{
 		var toTrans = lastpart.substring(i, len);
-		for(var key in mlrules)
+		for(var key in rules)
 		{
 			if((new RegExp(key)).test(toTrans))
 			{
 				part1 = toTrans;
-				part2 = toTrans.replace(RegExp(key), mlrules[key]);
+				part2 = toTrans.replace(RegExp(key), rules[key]);
 				break outerloop;
 			}
 		}
@@ -312,6 +321,8 @@ outerloop:
 	var pair = new Array(part1, part2);
 	return pair;
 }
+// event listener for trasliterattion textfield
+// also listen for Ctrl+M combination to disable and enable trasliteration
 function tiKeyPressed(event) {
     var e = event || window.event;
     var code = e.charCode || e.keyCode;
@@ -354,6 +365,10 @@ function tiKeyPressed(event) {
 	}
     return true;
 }
+/*
+ * This is the function to which call during window load event for trasliterating textfields.
+ * The funtion will accept any number of HTML tag IDs of textfields.
+*/
 function transliterate(id) {
 	var len = arguments.length;
 	for(var i=0;i<len; i++)
@@ -382,6 +397,7 @@ function transOptionOnClick()
 }
 // change this value to "after" or "before" to position transliteration option check box
 var TO_POSITION = "after";
+// call this function to add checkbox to enable/disable transliteration
 function addTransliterationOption()
 {
 	var len = arguments.length;
