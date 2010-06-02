@@ -108,6 +108,7 @@ var rules = {
 '^ൾU$':'ളൂ',
 '^ൿU$':'കൂ',
 '^([ക-ഹ])ൊo$':'$1ൂ',
+'^ർ\\^$':'ഋ',
 '^([ക-ഹ])്e$':'$1െ',
 '^ൺe$':'ണെ',
 '^ൻe$':'നെ',
@@ -196,7 +197,7 @@ var rules = {
 };
 
 var memrules = {
-'^ക്h$': ['^.*\sc$', 'ച്']
+'^ക്h$': ['^.*c$', 'ച്']
 };
 // defining to store state info
 var trasliteration_fields = {};
@@ -317,8 +318,7 @@ outerloop1:
 		var toTrans = lastpart.substring(i, len);
 		for(var key in memrules)
 		{
-			//alert("Last: "+previous_sequence);
-			if((new RegExp(key)).test(toTrans) && (new RegExp(previous_sequence)).test(memrules[key][0]))
+			if((new RegExp(key)).test(toTrans) && (new RegExp(memrules[key][0])).test(previous_sequence))
 			{
 				part1 = toTrans;
 				part2 = toTrans.replace(RegExp(key), memrules[key][1]);
