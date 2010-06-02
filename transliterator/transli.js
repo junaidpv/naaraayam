@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Trasliteration Tool
  * @author Junaid P V
  * @date 2010-05-19
@@ -205,32 +205,30 @@ var trasliteration_fields = {};
 var previous_sequence = '';
 
 /**
- * from Alex who wrote comment for http://blog.vishalon.net/index.php/javascript-getting-and-setting-caret-position-in-textarea/
+ * from comment made by m2pc at http://www.webdeveloper.com/forum/showthread.php?t=74982
  */
-function GetCaretPosition(control)
-{
-    var CaretPos = 0;
-    // IE Support
-    if (document.selection)
-    {
-        control.focus();
-        var Sel = document.selection.createRange ();
-        var Sel2 = Sel.duplicate();
-        Sel2.moveToElementText(control);
-        CaretPos = -1;
-        while(Sel2.inRange(Sel))
-        {
-            Sel2.moveStart('character');
-            CaretPos++;
-        }
-    }
-    // Firefox support
-
-    else if (control.selectionStart || control.selectionStart == '0')
-        CaretPos = control.selectionStart;
-
-    return (CaretPos);
+ function GetCaretPosition (oField) {
+	// Initialize
+	var iCaretPos = 0;
+	// IE Support
+	if (document.selection) { 
+	   // Set focus on the element
+	   oField.focus ();
+	   // To get cursor position, get empty selection range
+	   var oSel = document.selection.createRange ();
+	   // Move selection start to 0 position
+	   oSel.moveStart ('character', -oField.value.length);
+	   // The caret position is selection length
+	   iCaretPos = oSel.text.length;
+	}
+	// Firefox support
+	else if (oField.selectionStart || oField.selectionStart == '0')
+	   iCaretPos = oField.selectionStart;
+	// Return results
+	return (iCaretPos);
 }
+
+
 function setCaretPosition (el, iCaretPos)
 {
     if (document.selection) // IE
@@ -258,7 +256,7 @@ function setCaretPosition (el, iCaretPos)
         el.setSelectionRange(iCaretPos, iCaretPos)
     }
 }
-/*
+/**
  * from http://alexking.org/blog/2003/06/02/inserting-at-the-cursor-using-javascript
  */
 function insertAtCursor(myField, myValue) {
@@ -300,7 +298,7 @@ function setCaretAtNewPosition(control, oldString, newString, oldCaretPosition)
 	var newCaretPosition = oldCaretPosition - oldString.length + newString.length + 1 
 	setCaretPosition(control, newCaretPosition);
 }
-/*
+/**
  * This function will take a string to check against regular expression rules in the rules array.
  * It will return a two memeber array, having given string as first member and replacement string as
  * second memeber. If corresponding replacement could not be found then second string will be too given string
@@ -359,17 +357,17 @@ function tiKeyPressed(event) {
 	{
 		if (e.ctrlKey && (code==77 || code==109))
 		{
-			var checkbox = document.getElementById(this.id+'cb');
+			var checkbox = document.getElementById((e.currentTarget || e.srcElement).id+'cb');
 			if(checkbox)
 			{
 				if(!checkbox.checked)
 				{
-					trasliteration_fields[this.id] = true;
+					trasliteration_fields[(e.currentTarget || e.srcElement).id] = true;
 					checkbox.checked = true;
 				}
 				else
 				{
-					trasliteration_fields[this.id] = false;
+					trasliteration_fields[(e.currentTarget || e.srcElement).id] = false;
 					checkbox.checked = false;
 				}
 				return false;
@@ -378,11 +376,10 @@ function tiKeyPressed(event) {
 		return true;
 	}
 	
-	
     if (code < 32) return true;             // ASCII control character
-	if(trasliteration_fields[this.id])
+	if(trasliteration_fields[(e.currentTarget || e.srcElement).id])
 	{
-		var targetElement = document.getElementById((e.target || e.srcElement).id);
+		var targetElement = (e.currentTarget || e.srcElement);
 		var c = String.fromCharCode(code);
 		var oldCaretPosition = GetCaretPosition(targetElement);
 		var lastSevenChars = getLastSixChars(targetElement.value, oldCaretPosition);
@@ -392,11 +389,13 @@ function tiKeyPressed(event) {
 		setCaretAtNewPosition(targetElement, transPair[0], transPair[1], oldCaretPosition);
 		previous_sequence += c;
 		if(previous_sequence.length > 6 ) previous_sequence = previous_sequence.substring(previous_sequence.length-6);
+		if(event.preventDefault) event.preventDefault();
+		else if(event.cancelBubble) { event.cancelBubble = true; }
 		return false;
 	}
-    return true;
+	return true;
 }
-/*
+/**
  * This is the function to which call during window load event for trasliterating textfields.
  * The funtion will accept any number of HTML tag IDs of textfields.
 */
@@ -408,22 +407,29 @@ function transliterate(id) {
 		if(element)
 		{
 			trasliteration_fields[arguments[i]] = true;
-			element.onkeypress = tiKeyPressed;
+			//element.onkeypress = tiKeyPressed;
+			if (element.addEventListener){
+				element.addEventListener('keypress', tiKeyPressed, false);
+			} else if (element.attachEvent){  
+				element.attachEvent("onkeypress", tiKeyPressed);  
+			}  
 		}
 	}
 }
 
 function transOptionOnClick()
 {
-	if(this.checked)
+	var e = event || window.event;
+	var checkbox =  (e.currentTarget || e.srcElement);
+	if(checkbox.checked)
 	{
-		trasliteration_fields[this.value] = true;
-		this.checked = true;
+		trasliteration_fields[checkbox.value] = true;
+		checkbox.checked = true;
 	}
 	else
 	{
-		trasliteration_fields[this.value] = false;
-		this.checked = false;
+		trasliteration_fields[checkbox.value] = false;
+		checkbox.checked = false;
 	}
 }
 // change this value to "after" or "before" to position transliteration option check box
