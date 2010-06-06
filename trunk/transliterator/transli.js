@@ -13,8 +13,10 @@
 
 // defining to store state info
 var trasliteration_fields = {};
-
-var previous_sequence = '';
+// memory for previus key sequence
+var previous_sequence = {};
+// temporary disabling of transliteration
+var temp_disable = {};
 
 /**
  * from comment made by m2pc at http://www.webdeveloper.com/forum/showthread.php?t=74982
@@ -115,7 +117,7 @@ function setCaretAtNewPosition(control, oldString, newString, oldCaretPosition)
  * It will return a two memeber array, having given string as first member and replacement string as
  * second memeber. If corresponding replacement could not be found then second string will be too given string
 */
-function trans(lastpart)
+function trans(lastpart,e)
 {
 	var len = lastpart.length;
 	var i=0;
@@ -128,7 +130,7 @@ outerloop1:
 		var toTrans = lastpart.substring(i, len);
 		for(var key in memrules)
 		{
-			if((new RegExp(key)).test(toTrans) && (new RegExp(memrules[key][0])).test(previous_sequence))
+			if((new RegExp(key)).test(toTrans) && (new RegExp(memrules[key][0])).test(previous_sequence[(e.currentTarget || e.srcElement).id ]))
 			{
 				part1 = toTrans;
 				part2 = toTrans.replace(RegExp(key), memrules[key][1]);
@@ -162,7 +164,7 @@ outerloop1:
 function tiKeyPressed(event) {
     var e = event || window.event;
     var code = e.charCode || e.keyCode;
-	if (code == 8 ) { previous_sequence = ''; return true; } // Backspace
+	if (code == 8 ) { previous_sequence[(e.currentTarget || e.srcElement).id] = ''; return true; } // Backspace
     // If this keystroke is a function key of any kind, do not filter it
     if (e.charCode == 0) return true;       // Function key (Firefox only)
     if (e.ctrlKey || e.altKey) // Ctrl or Alt held down
@@ -187,20 +189,39 @@ function tiKeyPressed(event) {
 		}
 		return true;
 	}
-	
-    if (code < 32) return true;             // ASCII control character
+	if (code < 32) return true;             // ASCII control character
 	if(trasliteration_fields[(e.currentTarget || e.srcElement).id])
 	{
 		var targetElement = (e.currentTarget || e.srcElement);
 		var c = String.fromCharCode(code);
 		var oldCaretPosition = GetCaretPosition(targetElement);
 		var lastSevenChars = getLastSixChars(targetElement.value, oldCaretPosition);
-		var transPair = trans(lastSevenChars+c);
-		var newText = replaceTransStringAtCaret(targetElement.value, transPair[0].length, transPair[1], oldCaretPosition);
+		
+		if(code ==62 && previous_sequence[(e.currentTarget || e.srcElement).id ].substring(previous_sequence[(e.currentTarget || e.srcElement).id ].length-1)=="<") 
+		{
+			//alert("char: "+ previous_sequence[(e.currentTarget || e.srcElement).id ].substring(previous_sequence[(e.currentTarget || e.srcElement).id ].length-1));
+			var oldString = "<>";
+			var newString = "";
+			temp_disable[(e.currentTarget || e.srcElement).id] = !temp_disable[(e.currentTarget || e.srcElement).id];
+		}
+		else {
+			if(!temp_disable[(e.currentTarget || e.srcElement).id])
+			{
+				var transPair = trans(lastSevenChars+c, e);
+				var oldString = transPair[0];
+				var newString = transPair[1];
+			}
+			else 
+			{
+				var oldString = c;
+				var newString = c;
+			}
+		}
+		var newText = replaceTransStringAtCaret(targetElement.value, oldString.length, newString , oldCaretPosition);
 		targetElement.value = newText;
-		setCaretAtNewPosition(targetElement, transPair[0], transPair[1], oldCaretPosition);
-		previous_sequence += c;
-		if(previous_sequence.length > 6 ) previous_sequence = previous_sequence.substring(previous_sequence.length-6);
+		setCaretAtNewPosition(targetElement, oldString , newString , oldCaretPosition);
+		previous_sequence[(e.currentTarget || e.srcElement).id ] += c;
+		if(previous_sequence[(e.currentTarget || e.srcElement).id ].length > 6 ) previous_sequence[(e.currentTarget || e.srcElement).id ] = previous_sequence[(e.currentTarget || e.srcElement).id ].substring(previous_sequence[(e.currentTarget || e.srcElement).id ].length-6);
 		if(event.preventDefault) event.preventDefault();
 		else if(event.cancelBubble) { event.cancelBubble = true; }
 		return false;
@@ -219,6 +240,7 @@ function transliterate(id) {
 		if(element)
 		{
 			trasliteration_fields[arguments[i]] = true;
+			previous_sequence[arguments[i]] = '';
 			//element.onkeypress = tiKeyPressed;
 			if (element.addEventListener){
 				element.addEventListener('keypress', tiKeyPressed, false);
