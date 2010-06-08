@@ -169,7 +169,7 @@ function tiKeyPressed(event) {
     if (e.charCode == 0) return true;       // Function key (Firefox only)
     if (e.ctrlKey || e.altKey) // Ctrl or Alt held down
 	{
-		if (e.ctrlKey && (code==77 || code==109))
+		if (e.ctrlKey && (code==77 || code==109)) // pressed Ctrl+M
 		{
 			var checkbox = document.getElementById((e.currentTarget || e.srcElement).id+'cb');
 			if(checkbox)
@@ -177,6 +177,7 @@ function tiKeyPressed(event) {
 				if(!checkbox.checked)
 				{
 					trasliteration_fields[(e.currentTarget || e.srcElement).id] = true;
+					temp_disable[checkbox.value] = false;
 					checkbox.checked = true;
 				}
 				else
@@ -251,13 +252,14 @@ function transliterate(id) {
 	}
 }
 
-function transOptionOnClick()
+function transOptionOnClick(event)
 {
 	var e = event || window.event;
 	var checkbox =  (e.currentTarget || e.srcElement);
 	if(checkbox.checked)
 	{
 		trasliteration_fields[checkbox.value] = true;
+		temp_disable[checkbox.value] = false;
 		checkbox.checked = true;
 	}
 	else
