@@ -70,48 +70,44 @@ function setCaretPosition (el, iCaretPos)
         el.setSelectionRange(iCaretPos, iCaretPos)
     }
 }
-/**
- * from http://alexking.org/blog/2003/06/02/inserting-at-the-cursor-using-javascript
- */
-function insertAtCursor(myField, myValue) {
-    //IE support
-    if (document.selection) {
-        myField.focus();
-        sel = document.selection.createRange();
-        sel.text = myValue;
-    }
-    //MOZILLA/NETSCAPE support
-    else if (myField.selectionStart || myField.selectionStart == '0') {
-        var startPos = myField.selectionStart;
-        var endPos = myField.selectionEnd;
-        myField.value = myField.value.substring(0, startPos)
-        + myValue
-        + myField.value.substring(endPos, myField.value.length);
-    } else {
-        myField.value += myValue;
-    }
-}
+
+
 function getLastSixChars(str, caretPosition)
 {
 	if(caretPosition <= 6 ) return str.substring(0,caretPosition);
 	else return str.substring(caretPosition-6,caretPosition);
 }
-function replaceTransStringAtCaret(text, oldStringLength, newString, caretPosition)
+function replaceTransStringAtCaret(control, oldStringLength, newString, caretPosition)
 {
-	if(text.length <1)
-	{
-		return newString;
+	var text = control.value;
+	// firefox always scrolls to topmost position,
+	// to scroll manually we keep original scroll postion.
+	if(control.scrollTop || control.scrollTop=='0') { var scrollTop = control.scrollTop; }
+	if(text.length  >= 1) {
+		var firstStr = text.substring(0, caretPosition - oldStringLength + 1);
+		var lastStr = text.substring(caretPosition, text.length);
+		control.value = firstStr+newString+ lastStr;
+		var newCaretPosition = firstStr.length+newString.length;
+		setCaretPosition(control,newCaretPosition);
 	}
-	var firstStr = text.substring(0, caretPosition - oldStringLength + 1);
-	var lastStr = text.substring(caretPosition, text.length);
-	return firstStr+ newString + lastStr;
+	else { 
+		control.value = newString;
+		var newCaretPosition = newString.length;
+		setCaretPosition(control,newCaretPosition);
+	}
+	// Manually scrolling in firefox, few tweeks or re-writing may require
+	if (navigator.userAgent.indexOf("Firefox")!=-1) {
+		var textLength = control.value.length;
+		var cols = control.cols;
+		if(newCaretPosition > (textLength-cols)) {
+			//var height = parseInt(window.getComputedStyle(control,null).getPropertyValue('height'));
+			var fontsize = parseInt(window.getComputedStyle(control,null).getPropertyValue('font-size'));
+			//var lineheight = height/fontsize;
+			control.scrollTop = scrollTop+fontsize;
+		} else control.scrollTop = scrollTop;
+	}
 }
-/* Helps to change position of caret to desired location */
-function setCaretAtNewPosition(control, oldString, newString, oldCaretPosition)
-{
-	var newCaretPosition = oldCaretPosition - oldString.length + newString.length + 1 
-	setCaretPosition(control, newCaretPosition);
-}
+
 /**
  * This function will take a string to check against regular expression rules in the rules array.
  * It will return a two memeber array, having given string as first member and replacement string as
@@ -200,7 +196,6 @@ function tiKeyPressed(event) {
 		
 		if(code ==62 && previous_sequence[(e.currentTarget || e.srcElement).id ].substring(previous_sequence[(e.currentTarget || e.srcElement).id ].length-1)=="<") 
 		{
-			//alert("char: "+ previous_sequence[(e.currentTarget || e.srcElement).id ].substring(previous_sequence[(e.currentTarget || e.srcElement).id ].length-1));
 			var oldString = "<>";
 			var newString = "";
 			temp_disable[(e.currentTarget || e.srcElement).id] = !temp_disable[(e.currentTarget || e.srcElement).id];
@@ -218,9 +213,7 @@ function tiKeyPressed(event) {
 				var newString = c;
 			}
 		}
-		var newText = replaceTransStringAtCaret(targetElement.value, oldString.length, newString , oldCaretPosition);
-		targetElement.value = newText;
-		setCaretAtNewPosition(targetElement, oldString , newString , oldCaretPosition);
+		replaceTransStringAtCaret(targetElement, oldString.length, newString , oldCaretPosition);
 		previous_sequence[(e.currentTarget || e.srcElement).id ] += c;
 		if(previous_sequence[(e.currentTarget || e.srcElement).id ].length > 6 ) previous_sequence[(e.currentTarget || e.srcElement).id ] = previous_sequence[(e.currentTarget || e.srcElement).id ].substring(previous_sequence[(e.currentTarget || e.srcElement).id ].length-6);
 		if(event.preventDefault) event.preventDefault();
