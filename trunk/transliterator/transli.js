@@ -1,8 +1,8 @@
 ﻿/**
  * Trasliteration Tool
- * @author Junaid P V
+ * @author Junaid P V ([[user:Junaidpv]])
  * @date 2010-05-19
- * License: GPLv3
+ * License: GPLv3, CC-BY-SA 3.0
  */
 /**
  * Define your own regular expression rules here. Or include predefined rules before this file.
