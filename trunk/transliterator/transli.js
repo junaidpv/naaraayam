@@ -155,53 +155,59 @@ outerloop1:
 	var pair = new Array(part1, part2);
 	return pair;
 }
+function enableTrasliteration(control, enable) {
+	if(enable==null) { enable = true; }
+	if(enable) {
+		trasliteration_fields[control.id] = true;
+		temp_disable[control.id] = false;
+	}
+	else {
+		trasliteration_fields[control.id] = false;
+	}
+}
+
 // event listener for trasliterattion textfield
 // also listen for Ctrl+M combination to disable and enable trasliteration
 function tiKeyPressed(event) {
-    var e = event || window.event;
-    var code = e.charCode || e.keyCode;
-	if (code == 8 ) { previous_sequence[(e.currentTarget || e.srcElement).id] = ''; return true; } // Backspace
+	var e = event || window.event;
+	var code = e.charCode || e.keyCode;
+	var targetElement = (e.currentTarget || e.srcElement);
+	if (code == 8 ) { previous_sequence[targetElement.id] = ''; return true; } // Backspace
     // If this keystroke is a function key of any kind, do not filter it
     if (e.charCode == 0) return true;       // Function key (Firefox only)
     if (e.ctrlKey || e.altKey) // Ctrl or Alt held down
 	{
 		if (e.ctrlKey && (code==77 || code==109)) // pressed Ctrl+M
 		{
-			var checkbox = document.getElementById((e.currentTarget || e.srcElement).id+'cb');
-			if(checkbox)
-			{
-				if(!checkbox.checked)
-				{
-					trasliteration_fields[(e.currentTarget || e.srcElement).id] = true;
-					temp_disable[checkbox.value] = false;
-					checkbox.checked = true;
-				}
-				else
-				{
-					trasliteration_fields[(e.currentTarget || e.srcElement).id] = false;
-					checkbox.checked = false;
-				}
-				return false;
+			var checkbox = document.getElementById(targetElement.id+'cb');
+			if(!trasliteration_fields[targetElement.id]) {
+				enableTrasliteration(targetElement, true);
+				if(checkbox) { checkbox.checked = true; }
 			}
+			else {
+				enableTrasliteration(targetElement, false);
+				if(checkbox) { checkbox.checked = false; }
+			}
+			return false;
 		}
 		return true;
 	}
 	if (code < 32) return true;             // ASCII control character
-	if(trasliteration_fields[(e.currentTarget || e.srcElement).id])
+	if(trasliteration_fields[targetElement.id])
 	{
-		var targetElement = (e.currentTarget || e.srcElement);
+		
 		var c = String.fromCharCode(code);
 		var oldCaretPosition = GetCaretPosition(targetElement);
 		var lastSevenChars = getLastSixChars(targetElement.value, oldCaretPosition);
 		
-		if(code ==62 && previous_sequence[(e.currentTarget || e.srcElement).id ].substring(previous_sequence[(e.currentTarget || e.srcElement).id ].length-1)=="<") 
+		if(code ==62 && previous_sequence[targetElement.id ].substring(previous_sequence[targetElement.id ].length-1)=="<") 
 		{
 			var oldString = "<>";
 			var newString = "";
-			temp_disable[(e.currentTarget || e.srcElement).id] = !temp_disable[(e.currentTarget || e.srcElement).id];
+			temp_disable[targetElement.id] = !temp_disable[targetElement.id];
 		}
 		else {
-			if(!temp_disable[(e.currentTarget || e.srcElement).id])
+			if(!temp_disable[targetElement.id])
 			{
 				var transPair = trans(lastSevenChars+c, e);
 				var oldString = transPair[0];
@@ -214,8 +220,8 @@ function tiKeyPressed(event) {
 			}
 		}
 		replaceTransStringAtCaret(targetElement, oldString.length, newString , oldCaretPosition);
-		previous_sequence[(e.currentTarget || e.srcElement).id ] += c;
-		if(previous_sequence[(e.currentTarget || e.srcElement).id ].length > 6 ) previous_sequence[(e.currentTarget || e.srcElement).id ] = previous_sequence[(e.currentTarget || e.srcElement).id ].substring(previous_sequence[(e.currentTarget || e.srcElement).id ].length-6);
+		previous_sequence[targetElement.id ] += c;
+		if(previous_sequence[targetElement.id ].length > 6 ) previous_sequence[targetElement.id ] = previous_sequence[targetElement.id ].substring(previous_sequence[targetElement.id ].length-6);
 		if(event.preventDefault) event.preventDefault();
 		else if(event.cancelBubble) { event.cancelBubble = true; }
 		return false;
