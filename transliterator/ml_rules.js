@@ -1,6 +1,6 @@
 ﻿/**
  * Trasliteration regular expression rules table for Malayalam
- * @author Junaid P V ([[user:Junaidpv]])
+ * @author Junaid P V ([[user:Junaidpv]]) with extensive advise from Thachan Makan ([[user:Thachan.makan]])
  * @date 2010-05-19
  * License: GPLv3, CC-BY-SA 3.0
  */
@@ -283,5 +283,6 @@
 // Memorised rules
 var memrules = {
 '^ൿh$': ['^.*c$', 'ച്'],
-'^ക്ക്h$': ['^.*cc$', 'ച്ച്']
+'^ക്ക്h$': ['^.*cc$', 'ച്ച്'],
+'^ല്പ്p$':['^.*lp$','ൽപ്പ്']
 };
