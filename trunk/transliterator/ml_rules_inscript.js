@@ -2,7 +2,7 @@
  * Inscript regular expression rules table for Malayalam
  * @author Junaid P V ([[user:Junaidpv]])
  * @date 2010-09-08
- * License: GPLv3, CC-BY-SA 3.0
+ * License: GPLv3
  */
  // Normal rules
  var rules = {
