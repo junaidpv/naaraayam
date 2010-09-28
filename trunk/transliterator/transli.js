@@ -155,15 +155,35 @@ outerloop1:
 	var pair = new Array(part1, part2);
 	return pair;
 }
+/**
+ * From: http://www.quirksmode.org/js/cookies.html
+ */
+function readCookie(name) {
+	var nameEQ = name + "=";
+	var ca = document.cookie.split(';');
+	for(var i=0;i < ca.length;i++) {
+		var c = ca[i];
+		while (c.charAt(0)==' ') c = c.substring(1,c.length);
+		if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length,c.length);
+	}
+	return null;
+}
+
 function enableTrasliteration(control, enable) {
 	if(enable==null) { enable = true; }
+	var translitCookie;
 	if(enable) {
 		trasliteration_fields[control.id] = true;
 		temp_disable[control.id] = false;
+		translitCookie = "tr"+control.id+"=1; expires=; path=/";
 	}
 	else {
 		trasliteration_fields[control.id] = false;
+		translitCookie = "tr"+control.id+"=0; expires=; path=/";
 	}
+	var checkbox = document.getElementById(control.id+'cb');
+	if(checkbox) { checkbox.checked = enable; }
+	document.cookie = translitCookie;
 }
 
 // event listener for trasliterattion textfield
@@ -179,15 +199,7 @@ function tiKeyPressed(event) {
 	{
 		if (e.ctrlKey && (code==77 || code==109)) // pressed Ctrl+M
 		{
-			var checkbox = document.getElementById(targetElement.id+'cb');
-			if(!trasliteration_fields[targetElement.id]) {
-				enableTrasliteration(targetElement, true);
-				if(checkbox) { checkbox.checked = true; }
-			}
-			else {
-				enableTrasliteration(targetElement, false);
-				if(checkbox) { checkbox.checked = false; }
-			}
+			enableTrasliteration(targetElement, !trasliteration_fields[targetElement.id]);
 			return false;
 		}
 		return true;
@@ -290,6 +302,24 @@ function addTransliterationOption()
 			para.appendChild(text);
 			if(TO_POSITION=="after") element.parentNode.insertBefore(para, element.nextSibling);
 			else if(TO_POSITION=="before") element.parentNode.insertBefore(para, element);
+		}
+	}
+}
+
+/**
+ * This functions is to synchronize state transliteration state to fields from cookies
+ */
+function translitStateSynWithCookie() {
+	var len = arguments.length;
+	for(var i=0;i<len; i++)
+	{
+		var element = document.getElementById(arguments[i]);
+		if(element)
+		{
+			var state = readCookie("tr"+arguments[i]);
+			if(!state || state=="1") { state = true; }
+			else { state = false; }
+			enableTrasliteration(element,state);
 		}
 	}
 }
