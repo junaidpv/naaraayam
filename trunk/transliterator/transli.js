@@ -281,6 +281,8 @@ function transOptionOnClick(event)
 }
 // change this value to "after" or "before" to position transliteration option check box
 var TO_POSITION = "after";
+// check box message
+var CHECKBOX_TEXT = "To Write Malayalam (Ctrl+M)";
 // call this function to add checkbox to enable/disable transliteration
 function addTransliterationOption()
 {
@@ -298,7 +300,7 @@ function addTransliterationOption()
 			checkbox.checked = true;
 			var para = document.createElement('p');
 			para.appendChild(checkbox);
-			var text = document.createTextNode("മലയാളത്തിലെഴുതുക (Ctrl+M)");
+			var text = document.createTextNode(CHECKBOX_TEXT);
 			para.appendChild(text);
 			if(TO_POSITION=="after") element.parentNode.insertBefore(para, element.nextSibling);
 			else if(TO_POSITION=="before") element.parentNode.insertBefore(para, element);
