@@ -156,34 +156,42 @@ outerloop1:
 	return pair;
 }
 /**
- * From: http://www.quirksmode.org/js/cookies.html
+ * from: http://www.javascripter.net/faq/settinga.htm
  */
-function readCookie(name) {
-	var nameEQ = name + "=";
-	var ca = document.cookie.split(';');
-	for(var i=0;i < ca.length;i++) {
-		var c = ca[i];
-		while (c.charAt(0)==' ') c = c.substring(1,c.length);
-		if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length,c.length);
-	}
-	return null;
+function setCookie(cookieName,cookieValue,nDays) {
+	var today = new Date();
+	var expire = new Date();
+	if (nDays==null || nDays==0) nDays=1;
+	expire.setTime(today.getTime() + 3600000*24*nDays);
+	document.cookie = cookieName+"="+escape(cookieValue)+ ";expires="+expire.toGMTString();
+}
+/**
+ * from: http://www.javascripter.net/faq/readinga.htm
+ */
+function readCookie(cookieName) {
+	var theCookie=""+document.cookie;
+	var ind=theCookie.indexOf(cookieName);
+	if (ind==-1 || cookieName=="") return ""; 
+	var ind1=theCookie.indexOf(';',ind);
+	if (ind1==-1) ind1=theCookie.length; 
+	return unescape(theCookie.substring(ind+cookieName.length+1,ind1));
 }
 
-function enableTrasliteration(control, enable) {
-	if(enable==null) { enable = true; }
-	var translitCookie;
+function enableTrasliteration(controlID, enable) {
+	if(enable==undefined) { enable = true; }
+	var cookieValue;
 	if(enable) {
-		trasliteration_fields[control.id] = true;
-		temp_disable[control.id] = false;
-		translitCookie = "tr"+control.id+"=1; expires=; path=/";
+		trasliteration_fields[controlID] = true;
+		temp_disable[controlID] = false;
+		cookieValue = 1;
 	}
 	else {
-		trasliteration_fields[control.id] = false;
-		translitCookie = "tr"+control.id+"=0; expires=; path=/";
+		trasliteration_fields[controlID] = false;
+		cookieValue = 0;
 	}
-	var checkbox = document.getElementById(control.id+'cb');
+	var checkbox = document.getElementById(controlID+'cb');
 	if(checkbox) { checkbox.checked = enable; }
-	document.cookie = translitCookie;
+	setCookie("tr"+controlID, cookieValue);
 }
 
 // event listener for trasliterattion textfield
@@ -199,7 +207,7 @@ function tiKeyPressed(event) {
 	{
 		if (e.ctrlKey && (code==77 || code==109)) // pressed Ctrl+M
 		{
-			enableTrasliteration(targetElement, !trasliteration_fields[targetElement.id]);
+			enableTrasliteration(targetElement.id, !trasliteration_fields[targetElement.id]);
 			return false;
 		}
 		return true;
@@ -269,14 +277,11 @@ function transOptionOnClick(event)
 	var checkbox =  (e.currentTarget || e.srcElement);
 	if(checkbox.checked)
 	{
-		trasliteration_fields[checkbox.value] = true;
-		temp_disable[checkbox.value] = false;
-		checkbox.checked = true;
+		enableTrasliteration(checkbox.value,true);
 	}
 	else
 	{
-		trasliteration_fields[checkbox.value] = false;
-		checkbox.checked = false;
+		enableTrasliteration(checkbox.value,false);
 	}
 }
 // change this value to "after" or "before" to position transliteration option check box
@@ -319,9 +324,9 @@ function translitStateSynWithCookie() {
 		if(element)
 		{
 			var state = readCookie("tr"+arguments[i]);
-			if(!state || state=="1") { state = true; }
-			else { state = false; }
-			enableTrasliteration(element,state);
+			var enable = true;
+			if(parseInt(state) == 0) { enable=false; }
+			enableTrasliteration(arguments[i],enable);
 		}
 	}
 }
