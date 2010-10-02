@@ -17,53 +17,80 @@ var trasliteration_fields = {};
 var previous_sequence = {};
 // temporary disabling of transliteration
 var temp_disable = {};
-
 /**
- * from comment made by m2pc at http://www.webdeveloper.com/forum/showthread.php?t=74982
+ * from: http://stackoverflow.com/questions/3053542/how-to-get-the-start-and-end-points-of-selection-in-text-area/3053640#3053640
  */
- function GetCaretPosition (oField) {
-	// Initialize
-	var iCaretPos = 0;
-	// IE Support
-	if (document.selection) { 
-	   // Set focus on the element
-	   oField.focus ();
-	   // To get cursor position, get empty selection range
-	   var oSel = document.selection.createRange ();
-	   // Move selection start to 0 position
-	   oSel.moveStart ('character', -oField.value.length);
-	   // The caret position is selection length
-	   iCaretPos = oSel.text.length;
-	}
-	// Firefox support
-	else if (oField.selectionStart || oField.selectionStart == '0')
-	   iCaretPos = oField.selectionStart;
-	// Return results
-	return (iCaretPos);
+function GetCaretPosition(el) {
+    var start = 0, end = 0, normalizedValue, range,
+        textInputRange, len, endRange;
+
+    if (typeof el.selectionStart == "number" && typeof el.selectionEnd == "number") {
+        start = el.selectionStart;
+        end = el.selectionEnd;
+    } else {
+        range = document.selection.createRange();
+
+        if (range && range.parentElement() == el) {
+            len = el.value.length;
+            normalizedValue = el.value.replace(/\r\n/g, "\n");
+
+            // Create a working TextRange that lives only in the input
+            textInputRange = el.createTextRange();
+            textInputRange.moveToBookmark(range.getBookmark());
+
+            // Check if the start and end of the selection are at the very end
+            // of the input, since moveStart/moveEnd doesn't return what we want
+            // in those cases
+            endRange = el.createTextRange();
+            endRange.collapse(false);
+
+            if (textInputRange.compareEndPoints("StartToEnd", endRange) > -1) {
+                start = end = len;
+            } else {
+                start = -textInputRange.moveStart("character", -len);
+                start += normalizedValue.slice(0, start).split("\n").length - 1;
+
+                if (textInputRange.compareEndPoints("EndToEnd", endRange) > -1) {
+                    end = len;
+                } else {
+                    end = -textInputRange.moveEnd("character", -len);
+                    end += normalizedValue.slice(0, end).split("\n").length - 1;
+                }
+            }
+        }
+    }
+	/*
+    return {
+        start: start,
+        end: end
+    };*/
+	return start;
 }
 
-
+/**
+ * from: http://stackoverflow.com/questions/3274843/get-caret-position-in-textarea-ie
+ */
+function offsetToRangeCharacterMove(el, offset) {
+    return offset - (el.value.slice(0, offset).split("\r\n").length - 1);
+}
+/**
+ * IE part from: http://stackoverflow.com/questions/3274843/get-caret-position-in-textarea-ie
+ */
 function setCaretPosition (el, iCaretPos)
 {
     if (document.selection) // IE
     {
-        var range
-
-        range = document.selection.createRange()
-
-        if (el.type == 'text') // textbox
-        {
-            range.moveStart ('character', -el.value.length)
-            range.moveEnd ('character', -el.value.length)
-            range.moveStart ('character', iCaretPos)
-            range.select()
-        }
-        else // textarea
-        {
-            range.collapse(false);
-            range.move ('character', iCaretPos - el.value.length + el.value.split('\n').length - 1);
-            range.select();
-        }
+	endOffset = startOffset=iCaretPos;
+	var range = el.createTextRange();
+	var startCharMove = offsetToRangeCharacterMove(el, startOffset);
+	range.collapse(true);
+	if (startOffset == endOffset) {
+		range.move("character", startCharMove);
+	} else {
+		range.moveEnd("character", offsetToRangeCharacterMove(el, endOffset));
+		range.moveStart("character", startCharMove);
+	}
+	range.select();
     }
     else if (el.selectionStart || el.selectionStart == '0') // Firefox
     {
@@ -71,12 +98,12 @@ function setCaretPosition (el, iCaretPos)
     }
 }
 
-
 function getLastSixChars(str, caretPosition)
 {
 	if(caretPosition <= 6 ) return str.substring(0,caretPosition);
 	else return str.substring(caretPosition-6,caretPosition);
 }
+
 function replaceTransStringAtCaret(control, oldStringLength, newString, caretPosition)
 {
 	var text = control.value;
