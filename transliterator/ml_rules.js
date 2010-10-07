@@ -218,20 +218,14 @@
 '^്(\u200c)+l$':'്ൽ',
 '^്(\u200c)+L$':'്ൾ',
 '^്(\u200c)+c$':'്ൿ',
-'^്N$':'്ണ്',
-'^്n$':'്ന്',
-'^്r$':'്ര്',
-'^്l$':'്ല്',
-'^്L$':'്ള്',
-'^്c$':'്ക്',
-'^\\\\0$':'൦',	// escape to ml digit 0 by \0
+'^\\\\0$':'൦',		// escape to ml digit 0 by \0
 '^\\\\1$':'൧', 	// escape to ml digit 1 by \1
 '^\\\\2$':'൨',	// escape to ml digit 2 by \2
 '^\\\\3$':'൩',	// escape to ml digit 3 by \3
-'^\\\\4$':'൪',	// escape to ml digit 4 by \4
+'^\\\\4$':'൪',		// escape to ml digit 4 by \4
 '^\\\\5$':'൫',	// escape to ml digit 5 by \5
 '^\\\\6$':'൬',	// escape to ml digit 6 by \6
-'^\\\\7$':'൭',	// escape to ml digit 7 by \7
+'^\\\\7$':'൭',		// escape to ml digit 7 by \7
 '^\\\\8$':'൮',	// escape to ml digit 8 by \8
 '^\\\\9$':'൯',	// escape to ml digit 9 by \9
 'മ്\\\\':'ം',
