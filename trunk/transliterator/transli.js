@@ -29,8 +29,8 @@ function GetCaretPosition(el) {
         end = el.selectionEnd;
     } else {
         range = document.selection.createRange();
-
         if (range && range.parentElement() == el) {
+		range.text = "";
             len = el.value.length;
             normalizedValue = el.value.replace(/\r\n/g, "\n");
 
