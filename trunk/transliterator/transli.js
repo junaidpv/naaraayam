@@ -30,7 +30,6 @@ function GetCaretPosition(el) {
     } else {
         range = document.selection.createRange();
         if (range && range.parentElement() == el) {
-		range.text = "";
             len = el.value.length;
             normalizedValue = el.value.replace(/\r\n/g, "\n");
 
@@ -59,12 +58,10 @@ function GetCaretPosition(el) {
             }
         }
     }
-	/*
     return {
         start: start,
         end: end
-    };*/
-	return start;
+    };
 }
 
 /**
@@ -104,15 +101,15 @@ function getLastSixChars(str, caretPosition)
 	else return str.substring(caretPosition-6,caretPosition);
 }
 
-function replaceTransStringAtCaret(control, oldStringLength, newString, caretPosition)
+function replaceTransStringAtCaret(control, oldStringLength, newString, selectionRange)
 {
 	var text = control.value;
 	// firefox always scrolls to topmost position,
 	// to scroll manually we keep original scroll postion.
 	if(control.scrollTop || control.scrollTop=='0') { var scrollTop = control.scrollTop; }
 	if(text.length  >= 1) {
-		var firstStr = text.substring(0, caretPosition - oldStringLength + 1);
-		var lastStr = text.substring(caretPosition, text.length);
+		var firstStr = text.substring(0, selectionRange['start'] - oldStringLength + 1);
+		var lastStr = text.substring(selectionRange['end'], text.length);
 		control.value = firstStr+newString+ lastStr;
 		var newCaretPosition = firstStr.length+newString.length;
 		setCaretPosition(control,newCaretPosition);
@@ -244,8 +241,8 @@ function tiKeyPressed(event) {
 	{
 		
 		var c = String.fromCharCode(code);
-		var oldCaretPosition = GetCaretPosition(targetElement);
-		var lastSevenChars = getLastSixChars(targetElement.value, oldCaretPosition);
+		var selectionRange = GetCaretPosition(targetElement);
+		var lastSevenChars = getLastSixChars(targetElement.value, selectionRange['start']);
 		
 		if(code ==62 && previous_sequence[targetElement.id ].substring(previous_sequence[targetElement.id ].length-1)=="<") 
 		{
@@ -266,7 +263,7 @@ function tiKeyPressed(event) {
 				var newString = c;
 			}
 		}
-		replaceTransStringAtCaret(targetElement, oldString.length, newString , oldCaretPosition);
+		replaceTransStringAtCaret(targetElement, oldString.length, newString , selectionRange);
 		previous_sequence[targetElement.id ] += c;
 		if(previous_sequence[targetElement.id ].length > 6 ) previous_sequence[targetElement.id ] = previous_sequence[targetElement.id ].substring(previous_sequence[targetElement.id ].length-6);
 		if(event.preventDefault) event.preventDefault();
