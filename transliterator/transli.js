@@ -229,7 +229,7 @@ function tiKeyPressed(event) {
     if (e.charCode == 0) return true;       // Function key (Firefox only)
     if (e.ctrlKey || e.altKey) // Ctrl or Alt held down
 	{
-		if (e.ctrlKey && (code==77 || code==109)) // pressed Ctrl+M
+		if (e.ctrlKey && (e.keyCode == 13 || e.which == 109)) // pressed Ctrl+M
 		{
 			enableTrasliteration(targetElement.id, !trasliteration_fields[targetElement.id]);
 			return false;
