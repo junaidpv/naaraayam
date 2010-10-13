@@ -226,7 +226,7 @@ function tiKeyPressed(event) {
 	var targetElement = (e.currentTarget || e.srcElement);
 	if (code == 8 ) { previous_sequence[targetElement.id] = ''; return true; } // Backspace
     // If this keystroke is a function key of any kind, do not filter it
-    if (e.charCode == 0) return true;       // Function key (Firefox only)
+    if (e.charCode == 0 || e.which ==0 ) return true;       // Function key (Firefox and Opera), e.charCode for Firefox and e.which for Opera
     if (e.ctrlKey || e.altKey) // Ctrl or Alt held down
 	{
 		if (e.ctrlKey && (e.keyCode == 13 || e.which == 109)) // pressed Ctrl+M
