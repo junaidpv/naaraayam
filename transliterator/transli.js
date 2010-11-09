@@ -354,3 +354,15 @@ function translitStateSynWithCookie() {
 		}
 	}
 }
+
+function writingStyleLBChanged() {
+	if(this.selectedIndex == 0) {
+		rules = rules0;
+		memrules = memrules0;
+	}
+	else if(this.selectedIndex == 1) {
+		rules = rules1;
+		memrules = memrules1;
+	}
+	setCookie("transToolIndex", this.selectedIndex);
+}
