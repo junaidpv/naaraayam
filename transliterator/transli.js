@@ -312,6 +312,8 @@ function transOptionOnClick(event)
 var TO_POSITION = "after";
 // check box message
 var CHECKBOX_TEXT = "To Write Malayalam (Ctrl+M)";
+// Default tranliteration state
+var DEFAULT_STATE = true;
 // call this function to add checkbox to enable/disable transliteration
 function addTransliterationOption()
 {
@@ -326,7 +328,7 @@ function addTransliterationOption()
 			checkbox.type = 'checkbox';
 			checkbox.value = arguments[i];
 			checkbox.onclick = transOptionOnClick;
-			checkbox.checked = true;
+			checkbox.checked = DEFAULT_STATE;
 			var para = document.createElement('p');
 			para.appendChild(checkbox);
 			var text = document.createTextNode(CHECKBOX_TEXT);
