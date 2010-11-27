@@ -357,14 +357,17 @@ function translitStateSynWithCookie() {
 	}
 }
 
-function writingStyleLBChanged() {
-	if(this.selectedIndex == 0) {
+function writingStyleLBChanged(event) {
+	var e = event || window.event;
+	var listBox =  (e.currentTarget || e.srcElement);
+	
+	if(listBox.selectedIndex == 0) {
 		rules = rules0;
 		memrules = memrules0;
 	}
-	else if(this.selectedIndex == 1) {
+	else if(listBox.selectedIndex == 1) {
 		rules = rules1;
 		memrules = memrules1;
 	}
-	setCookie("transToolIndex", this.selectedIndex);
+	setCookie("transToolIndex", listBox.selectedIndex);
 }
