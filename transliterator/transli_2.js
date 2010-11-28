@@ -46,7 +46,7 @@ transettings.checkbox.link.tooltip = '';
 // Default tranliteration state
 transettings.default_state = true;
 // For multi scheme environment
-transettings.schemes = []; // rules
+transettings.schemes = new Array();
 transettings.default_scheme_index = 0;
 
 
@@ -58,9 +58,8 @@ var previous_sequence = {};
 var temp_disable = {};
 
 function setDefaultSchmeIndex(index) {
-	if(isNaN(index) || index < 0) {
-		transettings.default_scheme_index = 0;
-	}
+	if(isNaN(index)) index = parseInt(index);
+	if(index==null || index < 0) transettings.default_scheme_index = 0;
 	else transettings.default_scheme_index = index;
 }
 
@@ -280,9 +279,11 @@ function stopPropagation(event) {
 function tiKeyPressed(event) {
 	var e = event || window.event;
 	
-	var code;
-	if (e.keyCode) code = e.keyCode;
-	else if (e.which) code = e.which;
+	var keyCode;
+	if (e.keyCode) keyCode = e.keyCode;
+	else if (e.which) keyCode = e.which;
+	
+	var charCode = e.charCode;
 	
 	var targetElement;
 	if(e.target) targetElement=e.target;
@@ -297,10 +298,10 @@ function tiKeyPressed(event) {
 	if(e.shiftKey)	shiftKey = true;
 	if(e.altKey)	altKey = true;
 	if(e.metaKey)   metaKey = true;
-	
+
 	var shortcut = transettings.shortcut;
-	
-	if (code == 8 ) { previous_sequence[targetElement.id] = ''; return true; } // Backspace
+
+	if (keyCode == 8 ) { previous_sequence[targetElement.id] = ''; return true; } // Backspace
     // If this keystroke is a function key of any kind, do not filter it
     if (e.charCode == 0 || e.which ==0 ) return true;       // Function key (Firefox and Opera), e.charCode for Firefox and e.which for Opera
     // If control or alt or meta key pressed
@@ -308,7 +309,7 @@ function tiKeyPressed(event) {
 		// If shortkey has been specified
 		if((shortcut.controlkey || shortcut.shiftkey || shortcut.altkey || shortcut.metakey) &&
 				(shortcut.controlkey==controlKey && shortcut.shiftkey==shiftKey && shortcut.altkey==altKey && shortcut.metakey==metaKey) &&
-				String.fromCharCode(code).toLowerCase()==shortcut.key.toLowerCase()) {
+				String.fromCharCode(keyCode).toLowerCase()==shortcut.key.toLowerCase()) {
 	
 			enableTrasliteration(targetElement.id, !trasliteration_fields[targetElement.id]);
 			stopPropagation(e);
@@ -316,26 +317,15 @@ function tiKeyPressed(event) {
 		}
 		return true;
 	}
-    /*
-    if (e.ctrlKey || e.altKey) // Ctrl or Alt held down
-	{
-		if (e.ctrlKey && (e.keyCode == 13 || e.which == 109)) // pressed Ctrl+M
-		{
-			enableTrasliteration(targetElement.id, !trasliteration_fields[targetElement.id]);
-			stopPropagation(e);
-			return false;
-		}
-		return true;
-	}*/
-	if (code < 32) return true;             // ASCII control character
+	if (charCode < 32) return true;             // ASCII control character
 	if(trasliteration_fields[targetElement.id])
 	{
 		
-		var c = String.fromCharCode(code);
+		var c = String.fromCharCode(charCode);
 		var selectionRange = GetCaretPosition(targetElement);
 		var lastSevenChars = getLastSixChars(targetElement.value, selectionRange['start']);
 		
-		if(code ==62 && previous_sequence[targetElement.id ].substring(previous_sequence[targetElement.id ].length-1)=="<") 
+		if(charCode ==62 && previous_sequence[targetElement.id ].substring(previous_sequence[targetElement.id ].length-1)=="<") 
 		{
 			var oldString = "<>";
 			var newString = "";
@@ -447,4 +437,10 @@ function writingStyleLBChanged(event) {
 	rules = transettings.schemes[listBox.selectedIndex].rules;
 	memrules = transettings.schemes[listBox.selectedIndex].rules;
 	setCookie("transToolIndex", listBox.selectedIndex);
+}
+
+function initMultiScheme() {
+	var scheme = transettings.schemes[transettings.default_scheme_index];
+	rules = scheme.rules;
+	memrules = scheme.memrules;
 }
