@@ -10,6 +10,14 @@
  * 'rules' table is for normal rewriting
  * 'memrules' table is for memorised rules
 */
+/** Settings */
+// change this value to "after" or "before" to position transliteration option check box
+var TO_POSITION = "after";
+// check box message
+var CHECKBOX_TEXT = "To Write Malayalam (Ctrl+M)";
+// Default tranliteration state
+var DEFAULT_STATE = true;
+
 
 // defining to store state info
 var trasliteration_fields = {};
@@ -283,7 +291,7 @@ function transliterate(id) {
 		var element = document.getElementById(arguments[i]);
 		if(element)
 		{
-			trasliteration_fields[arguments[i]] = true;
+			trasliteration_fields[arguments[i]] = DEFAULT_STATE;
 			previous_sequence[arguments[i]] = '';
 			//element.onkeypress = tiKeyPressed;
 			if (element.addEventListener){
@@ -308,12 +316,6 @@ function transOptionOnClick(event)
 		enableTrasliteration(checkbox.value,false);
 	}
 }
-// change this value to "after" or "before" to position transliteration option check box
-var TO_POSITION = "after";
-// check box message
-var CHECKBOX_TEXT = "To Write Malayalam (Ctrl+M)";
-// Default tranliteration state
-var DEFAULT_STATE = true;
 // call this function to add checkbox to enable/disable transliteration
 function addTransliterationOption()
 {
@@ -350,7 +352,7 @@ function translitStateSynWithCookie() {
 		if(element)
 		{
 			var state = readCookie("tr"+arguments[i]);
-			var enable = true;
+			var enable = DEFAULT_STATE;
 			if(parseInt(state) == 0) { enable=false; }
 			enableTrasliteration(arguments[i],enable);
 		}
