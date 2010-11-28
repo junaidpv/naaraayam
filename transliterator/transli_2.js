@@ -2,6 +2,8 @@
  * Trasliteration Tool
  * @author Junaid P V ([[user:Junaidpv]])
  * @date 2010-05-19
+ * @version 1.2
+ * Last update: 2010-11-28
  * License: GPLv3, CC-BY-SA 3.0
  */
 /**
@@ -10,13 +12,42 @@
  * 'rules' table is for normal rewriting
  * 'memrules' table is for memorised rules
 */
+
 /** Settings */
+var transettings = {};
+// shortcut key settings
+transettings.shortcut = {
+	controlkey: false,
+	shiftkey: false,
+	altkey: false,
+	metakey: false,
+	key: '',
+	toString:function() {
+		var parts= [];
+		if(this.controlkey) parts.push('Ctrl');
+		if(this.shiftkey) parts.push('Shift');
+		if(this.altkey) parts.push('Alt');
+		if(this.metakey) parts.push('Meta');
+		parts.push(this.key.toUpperCase());
+		return parts.join('+');
+	}
+};
+transettings.checkbox = {};
 // change this value to "after" or "before" to position transliteration option check box
-var TO_POSITION = "after";
-// check box message
-var CHECKBOX_TEXT = "To Write Malayalam (Ctrl+M)";
+transettings.checkbox.position = 'after';
+// checkbox text
+transettings.checkbox.text = '';
+// checkbox simple test
+transettings.checkbox.simple_text = '';
+transettings.checkbox.link = {};
+transettings.checkbox.link.href = '';
+transettings.checkbox.link.text = '';
+transettings.checkbox.link.tooltip = '';
 // Default tranliteration state
-var DEFAULT_STATE = true;
+transettings.default_state = true;
+// For multi scheme environment
+transettings.schemes = []; // rules
+transettings.default_scheme_index = 0;
 
 
 // defining to store state info
@@ -25,14 +56,14 @@ var trasliteration_fields = {};
 var previous_sequence = {};
 // temporary disabling of transliteration
 var temp_disable = {};
-// shortcut
-var shortcut = {
-	controlkey: true,
-	shiftkey: false,
-	altkey: false,
-	metakey: false,
-	key: 'm'
-};
+
+function setDefaultSchmeIndex(index) {
+	if(isNaN(index) || index < 0) {
+		transettings.default_scheme_index = 0;
+	}
+	else transettings.default_scheme_index = index;
+}
+
 /**
  * from: http://stackoverflow.com/questions/3053542/how-to-get-the-start-and-end-points-of-selection-in-text-area/3053640#3053640
  */
@@ -45,7 +76,7 @@ function GetCaretPosition(el) {
         end = el.selectionEnd;
     } else {
         range = document.selection.createRange();
-        if (range && range.parentElement() == el) {shortcut.controlkey==controlKey
+        if (range && range.parentElement() == el) {
             len = el.value.length;
             normalizedValue = el.value.replace(/\r\n/g, "\n");
 
@@ -267,18 +298,24 @@ function tiKeyPressed(event) {
 	if(e.altKey)	altKey = true;
 	if(e.metaKey)   metaKey = true;
 	
+	var shortcut = transettings.shortcut;
+	
 	if (code == 8 ) { previous_sequence[targetElement.id] = ''; return true; } // Backspace
     // If this keystroke is a function key of any kind, do not filter it
     if (e.charCode == 0 || e.which ==0 ) return true;       // Function key (Firefox and Opera), e.charCode for Firefox and e.which for Opera
-    // If shortkey has been specified
-    if((shortcut.controlkey || shortcut.shiftkey || shortcut.altkey || shortcut.metakey) &&
-    		(shortcut.controlkey==controlKey && shortcut.shiftkey==shiftKey && shortcut.altkey==altKey && shortcut.metakey==metaKey) &&
-    		String.fromCharCode(code).toLowerCase()==shortcut.key.toLowerCase()) {
-    	
-    	enableTrasliteration(targetElement.id, !trasliteration_fields[targetElement.id]);
-		stopPropagation(e);
-		return false;
-    }
+    // If control or alt or meta key pressed
+    if(controlKey || altKey || metaKey) {
+		// If shortkey has been specified
+		if((shortcut.controlkey || shortcut.shiftkey || shortcut.altkey || shortcut.metakey) &&
+				(shortcut.controlkey==controlKey && shortcut.shiftkey==shiftKey && shortcut.altkey==altKey && shortcut.metakey==metaKey) &&
+				String.fromCharCode(code).toLowerCase()==shortcut.key.toLowerCase()) {
+	
+			enableTrasliteration(targetElement.id, !trasliteration_fields[targetElement.id]);
+			stopPropagation(e);
+			return false;
+		}
+		return true;
+	}
     /*
     if (e.ctrlKey || e.altKey) // Ctrl or Alt held down
 	{
@@ -336,7 +373,7 @@ function transliterate(id) {
 		var element = document.getElementById(arguments[i]);
 		if(element)
 		{
-			trasliteration_fields[arguments[i]] = DEFAULT_STATE;
+			trasliteration_fields[arguments[i]] = transettings.default_state;
 			previous_sequence[arguments[i]] = '';
 			//element.onkeypress = tiKeyPressed;
 			if (element.addEventListener){
@@ -375,13 +412,13 @@ function addTransliterationOption()
 			checkbox.type = 'checkbox';
 			checkbox.value = arguments[i];
 			checkbox.onclick = transOptionOnClick;
-			checkbox.checked = DEFAULT_STATE;
+			checkbox.checked = transettings.default_state;
 			var para = document.createElement('p');
 			para.appendChild(checkbox);
-			var text = document.createTextNode(CHECKBOX_TEXT);
+			var text = document.createTextNode(transettings.checkbox.text);
 			para.appendChild(text);
-			if(TO_POSITION=="after") element.parentNode.insertBefore(para, element.nextSibling);
-			else if(TO_POSITION=="before") element.parentNode.insertBefore(para, element);
+			if(transettings.checkbox.position=="after") element.parentNode.insertBefore(para, element.nextSibling);
+			else if(transettings.checkbox.position=="before") element.parentNode.insertBefore(para, element);
 		}
 	}
 }
@@ -397,7 +434,7 @@ function translitStateSynWithCookie() {
 		if(element)
 		{
 			var state = readCookie("tr"+arguments[i]);
-			var enable = DEFAULT_STATE;
+			var enable = transettings.default_state;
 			if(parseInt(state) == 0) { enable=false; }
 			enableTrasliteration(arguments[i],enable);
 		}
@@ -407,14 +444,7 @@ function translitStateSynWithCookie() {
 function writingStyleLBChanged(event) {
 	var e = event || window.event;
 	var listBox =  (e.currentTarget || e.srcElement);
-	
-	if(listBox.selectedIndex == 0) {
-		rules = rules0;
-		memrules = memrules0;
-	}
-	else if(listBox.selectedIndex == 1) {
-		rules = rules1;
-		memrules = memrules1;
-	}
+	rules = transettings.schemes[listBox.selectedIndex].rules;
+	memrules = transettings.schemes[listBox.selectedIndex].rules;
 	setCookie("transToolIndex", listBox.selectedIndex);
 }
