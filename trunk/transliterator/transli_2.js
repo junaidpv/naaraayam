@@ -31,7 +31,7 @@ var shortcut = {
 	shiftkey: false,
 	altkey: false,
 	metakey: false,
-	key: 's'
+	key: 'm'
 };
 /**
  * from: http://stackoverflow.com/questions/3053542/how-to-get-the-start-and-end-points-of-selection-in-text-area/3053640#3053640
