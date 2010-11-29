@@ -59,7 +59,7 @@ var temp_disable = {};
 
 function setDefaultSchmeIndex(index) {
 	if(isNaN(index)) index = parseInt(index);
-	if(index==null || index < 0) transettings.default_scheme_index = 0;
+	if(index==null || index==undefined || index=='' || index < 0) transettings.default_scheme_index = 0;
 	else transettings.default_scheme_index = index;
 }
 
@@ -268,27 +268,18 @@ function stopPropagation(event) {
 	event.cancelBubble = true;
 	event.returnValue = false;
 	//event.stopPropagation works in Firefox.
-	if (event.stopPropagation) {
-		event.stopPropagation();
-		event.preventDefault();
-	}
+	if (event.stopPropagation) event.stopPropagation();
+	if(event.preventDefault) event.preventDefault();
 }
 
-// event listener for trasliterattion textfield
-// also listen for Ctrl+M combination to disable and enable trasliteration
-function tiKeyPressed(event) {
+function shortKeyPressed(event) {
 	var e = event || window.event;
-	
-	var keyCode;
-	if (e.keyCode) keyCode = e.keyCode;
-	else if (e.which) keyCode = e.which;
-	
-	var charCode = e.charCode;
-	
 	var targetElement;
 	if(e.target) targetElement=e.target;
 	else if(e.srcElement) targetElement=e.srcElement;
-	if(targetElement.nodeType==3) targetElement=targetElement.parentNode;
+	var code;
+	if (e.keyCode) code = e.keyCode;
+	else if (e.which) code = e.which;
 	
 	var controlKey = false;
 	var shiftKey = false;
@@ -298,23 +289,38 @@ function tiKeyPressed(event) {
 	if(e.shiftKey)	shiftKey = true;
 	if(e.altKey)	altKey = true;
 	if(e.metaKey)   metaKey = true;
-
 	var shortcut = transettings.shortcut;
+	// If shortkey has been specified
+	if((shortcut.controlkey || shortcut.shiftkey || shortcut.altkey || shortcut.metakey) &&
+			(shortcut.controlkey==controlKey && shortcut.shiftkey==shiftKey && shortcut.altkey==altKey && shortcut.metakey==metaKey) &&
+			String.fromCharCode(code).toLowerCase()==shortcut.key.toLowerCase())
+	{
+		enableTrasliteration(targetElement.id, !trasliteration_fields[targetElement.id]);
+		stopPropagation(e);
+		return false;
+	}
+	return true;
+}
+// event listener for trasliterattion textfield
+// also listen for Ctrl+M combination to disable and enable trasliteration
+function tiKeyPressed(event) {
+	var e = event || window.event;
+	var keyCode;
+	if (e.keyCode) keyCode = e.keyCode;
+	else if (e.which) keyCode = e.which;
+	
+	var charCode = e.charCode || e.keyCode;
+	
+	var targetElement = (e.currentTarget || e.srcElement);
 
 	if (keyCode == 8 ) { previous_sequence[targetElement.id] = ''; return true; } // Backspace
-    // If this keystroke is a function key of any kind, do not filter it
-    if (e.charCode == 0 || e.which ==0 ) return true;       // Function key (Firefox and Opera), e.charCode for Firefox and e.which for Opera
-    // If control or alt or meta key pressed
-    if(controlKey || altKey || metaKey) {
-		// If shortkey has been specified
-		if((shortcut.controlkey || shortcut.shiftkey || shortcut.altkey || shortcut.metakey) &&
-				(shortcut.controlkey==controlKey && shortcut.shiftkey==shiftKey && shortcut.altkey==altKey && shortcut.metakey==metaKey) &&
-				String.fromCharCode(keyCode).toLowerCase()==shortcut.key.toLowerCase()) {
-	
-			enableTrasliteration(targetElement.id, !trasliteration_fields[targetElement.id]);
-			stopPropagation(e);
-			return false;
-		}
+	// If this keystroke is a function key of any kind, do not filter it
+	if (e.charCode == 0 || e.which ==0 ) return true;       // Function key (Firefox and Opera), e.charCode for Firefox and e.which for Opera
+	// If control or alt or meta key pressed
+	if(e.ctrlKey || e.altKey || e.metaKey) {
+		//if (navigator.userAgent.indexOf("Firefox")!=-1) {
+		//	return shortKeyPressed(event);
+		//}
 		return true;
 	}
 	if (charCode < 32) return true;             // ASCII control character
@@ -352,6 +358,14 @@ function tiKeyPressed(event) {
 	}
 	return true;
 }
+
+function tiKeyDown(event) {
+	var e = event || window.event;
+	if(e.ctrlKey || e.altKey || e.metaKey) {
+		return shortKeyPressed(event);
+	}
+	return true;
+}
 /**
  * This is the function to which call during window load event for trasliterating textfields.
  * The funtion will accept any number of HTML tag IDs of textfields.
@@ -367,10 +381,12 @@ function transliterate(id) {
 			previous_sequence[arguments[i]] = '';
 			//element.onkeypress = tiKeyPressed;
 			if (element.addEventListener){
+				element.addEventListener('keydown', tiKeyDown, false);
 				element.addEventListener('keypress', tiKeyPressed, false);
-			} else if (element.attachEvent){  
+			} else if (element.attachEvent){
+				element.attachEvent('onkeydown', tiKeyDown);
 				element.attachEvent("onkeypress", tiKeyPressed);  
-			}  
+			}
 		}
 	}
 }
@@ -423,9 +439,10 @@ function translitStateSynWithCookie() {
 		var element = document.getElementById(arguments[i]);
 		if(element)
 		{
-			var state = readCookie("tr"+arguments[i]);
+			var state = parseInt(readCookie("tr"+arguments[i]));
 			var enable = transettings.default_state;
-			if(parseInt(state) == 0) { enable=false; }
+			if(state == 1)  enable=true;
+			else if(state==0) enable =false;
 			enableTrasliteration(arguments[i],enable);
 		}
 	}
@@ -435,7 +452,7 @@ function writingStyleLBChanged(event) {
 	var e = event || window.event;
 	var listBox =  (e.currentTarget || e.srcElement);
 	rules = transettings.schemes[listBox.selectedIndex].rules;
-	memrules = transettings.schemes[listBox.selectedIndex].rules;
+	memrules = transettings.schemes[listBox.selectedIndex].memrules;
 	setCookie("transToolIndex", listBox.selectedIndex);
 }
 
