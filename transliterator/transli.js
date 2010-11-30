@@ -2,6 +2,8 @@
  * Trasliteration Tool
  * @author Junaid P V ([[user:Junaidpv]])
  * @date 2010-05-19
+ * @version 1.2
+ * Last update: 2010-11-28
  * License: GPLv3, CC-BY-SA 3.0
  */
 /**
@@ -10,13 +12,42 @@
  * 'rules' table is for normal rewriting
  * 'memrules' table is for memorised rules
 */
+
 /** Settings */
+var transettings = {};
+// shortcut key settings
+transettings.shortcut = {
+	controlkey: false,
+	shiftkey: false,
+	altkey: false,
+	metakey: false,
+	key: '',
+	toString:function() {
+		var parts= [];
+		if(this.controlkey) parts.push('Ctrl');
+		if(this.shiftkey) parts.push('Shift');
+		if(this.altkey) parts.push('Alt');
+		if(this.metakey) parts.push('Meta');
+		parts.push(this.key.toUpperCase());
+		return parts.join('+');
+	}
+};
+transettings.checkbox = {};
 // change this value to "after" or "before" to position transliteration option check box
-var TO_POSITION = "after";
-// check box message
-var CHECKBOX_TEXT = "To Write Malayalam (Ctrl+M)";
+transettings.checkbox.position = 'after';
+// checkbox text
+transettings.checkbox.text = '';
+// checkbox simple test
+transettings.checkbox.simple_text = '';
+transettings.checkbox.link = {};
+transettings.checkbox.link.href = '';
+transettings.checkbox.link.text = '';
+transettings.checkbox.link.tooltip = '';
 // Default tranliteration state
-var DEFAULT_STATE = true;
+transettings.default_state = true;
+// For multi scheme environment
+transettings.schemes = new Array();
+transettings.default_scheme_index = 0;
 
 
 // defining to store state info
@@ -25,6 +56,13 @@ var trasliteration_fields = {};
 var previous_sequence = {};
 // temporary disabling of transliteration
 var temp_disable = {};
+
+function setDefaultSchmeIndex(index) {
+	if(isNaN(index)) index = parseInt(index);
+	if(index==null || index==undefined || index=='' || index < 0) transettings.default_scheme_index = 0;
+	else transettings.default_scheme_index = index;
+}
+
 /**
  * from: http://stackoverflow.com/questions/3053542/how-to-get-the-start-and-end-points-of-selection-in-text-area/3053640#3053640
  */
@@ -225,34 +263,75 @@ function enableTrasliteration(controlID, enable) {
 	if(checkbox) { checkbox.checked = enable; }
 	setCookie("tr"+controlID, cookieValue);
 }
+// stop propagation of given event
+function stopPropagation(event) {
+	event.cancelBubble = true;
+	event.returnValue = false;
+	//event.stopPropagation works in Firefox.
+	if (event.stopPropagation) event.stopPropagation();
+	if(event.preventDefault) event.preventDefault();
+}
 
+function shortKeyPressed(event) {
+	var e = event || window.event;
+	var targetElement;
+	if(e.target) targetElement=e.target;
+	else if(e.srcElement) targetElement=e.srcElement;
+	var code;
+	if (e.keyCode) code = e.keyCode;
+	else if (e.which) code = e.which;
+	
+	var controlKey = false;
+	var shiftKey = false;
+	var altKey = false;
+	var metaKey = false;
+	if(e.ctrlKey)	controlKey = true;
+	if(e.shiftKey)	shiftKey = true;
+	if(e.altKey)	altKey = true;
+	if(e.metaKey)   metaKey = true;
+	var shortcut = transettings.shortcut;
+	// If shortkey has been specified
+	if((shortcut.controlkey || shortcut.shiftkey || shortcut.altkey || shortcut.metakey) &&
+			(shortcut.controlkey==controlKey && shortcut.shiftkey==shiftKey && shortcut.altkey==altKey && shortcut.metakey==metaKey) &&
+			String.fromCharCode(code).toLowerCase()==shortcut.key.toLowerCase())
+	{
+		enableTrasliteration(targetElement.id, !trasliteration_fields[targetElement.id]);
+		stopPropagation(e);
+		return false;
+	}
+	return true;
+}
 // event listener for trasliterattion textfield
 // also listen for Ctrl+M combination to disable and enable trasliteration
 function tiKeyPressed(event) {
 	var e = event || window.event;
-	var code = e.charCode || e.keyCode;
+	var keyCode;
+	if (e.keyCode) keyCode = e.keyCode;
+	else if (e.which) keyCode = e.which;
+	
+	var charCode = e.charCode || e.keyCode;
+	
 	var targetElement = (e.currentTarget || e.srcElement);
-	if (code == 8 ) { previous_sequence[targetElement.id] = ''; return true; } // Backspace
-    // If this keystroke is a function key of any kind, do not filter it
-    if (e.charCode == 0 || e.which ==0 ) return true;       // Function key (Firefox and Opera), e.charCode for Firefox and e.which for Opera
-    if (e.ctrlKey || e.altKey) // Ctrl or Alt held down
-	{
-		if (e.ctrlKey && (e.keyCode == 13 || e.which == 109)) // pressed Ctrl+M
-		{
-			enableTrasliteration(targetElement.id, !trasliteration_fields[targetElement.id]);
-			return false;
-		}
+
+	if (keyCode == 8 ) { previous_sequence[targetElement.id] = ''; return true; } // Backspace
+	// If this keystroke is a function key of any kind, do not filter it
+	if (e.charCode == 0 || e.which ==0 ) return true;       // Function key (Firefox and Opera), e.charCode for Firefox and e.which for Opera
+	// If control or alt or meta key pressed
+	if(e.ctrlKey || e.altKey || e.metaKey) {
+		//if (navigator.userAgent.indexOf("Firefox")!=-1) {
+		//	return shortKeyPressed(event);
+		//}
 		return true;
 	}
-	if (code < 32) return true;             // ASCII control character
+	if (charCode < 32) return true;             // ASCII control character
 	if(trasliteration_fields[targetElement.id])
 	{
 		
-		var c = String.fromCharCode(code);
+		var c = String.fromCharCode(charCode);
 		var selectionRange = GetCaretPosition(targetElement);
 		var lastSevenChars = getLastSixChars(targetElement.value, selectionRange['start']);
 		
-		if(code ==62 && previous_sequence[targetElement.id ].substring(previous_sequence[targetElement.id ].length-1)=="<") 
+		if(charCode ==62 && previous_sequence[targetElement.id ].substring(previous_sequence[targetElement.id ].length-1)=="<") 
 		{
 			var oldString = "<>";
 			var newString = "";
@@ -274,9 +353,16 @@ function tiKeyPressed(event) {
 		replaceTransStringAtCaret(targetElement, oldString.length, newString , selectionRange);
 		previous_sequence[targetElement.id ] += c;
 		if(previous_sequence[targetElement.id ].length > 6 ) previous_sequence[targetElement.id ] = previous_sequence[targetElement.id ].substring(previous_sequence[targetElement.id ].length-6);
-		if(event.preventDefault) event.preventDefault();
-		else if(event.cancelBubble) { event.cancelBubble = true; }
+		stopPropagation(e);
 		return false;
+	}
+	return true;
+}
+
+function tiKeyDown(event) {
+	var e = event || window.event;
+	if(e.ctrlKey || e.altKey || e.metaKey) {
+		return shortKeyPressed(event);
 	}
 	return true;
 }
@@ -291,14 +377,16 @@ function transliterate(id) {
 		var element = document.getElementById(arguments[i]);
 		if(element)
 		{
-			trasliteration_fields[arguments[i]] = DEFAULT_STATE;
+			trasliteration_fields[arguments[i]] = transettings.default_state;
 			previous_sequence[arguments[i]] = '';
 			//element.onkeypress = tiKeyPressed;
 			if (element.addEventListener){
+				element.addEventListener('keydown', tiKeyDown, false);
 				element.addEventListener('keypress', tiKeyPressed, false);
-			} else if (element.attachEvent){  
+			} else if (element.attachEvent){
+				element.attachEvent('onkeydown', tiKeyDown);
 				element.attachEvent("onkeypress", tiKeyPressed);  
-			}  
+			}
 		}
 	}
 }
@@ -330,13 +418,13 @@ function addTransliterationOption()
 			checkbox.type = 'checkbox';
 			checkbox.value = arguments[i];
 			checkbox.onclick = transOptionOnClick;
-			checkbox.checked = DEFAULT_STATE;
+			checkbox.checked = transettings.default_state;
 			var para = document.createElement('p');
 			para.appendChild(checkbox);
-			var text = document.createTextNode(CHECKBOX_TEXT);
+			var text = document.createTextNode(transettings.checkbox.text);
 			para.appendChild(text);
-			if(TO_POSITION=="after") element.parentNode.insertBefore(para, element.nextSibling);
-			else if(TO_POSITION=="before") element.parentNode.insertBefore(para, element);
+			if(transettings.checkbox.position=="after") element.parentNode.insertBefore(para, element.nextSibling);
+			else if(transettings.checkbox.position=="before") element.parentNode.insertBefore(para, element);
 		}
 	}
 }
@@ -351,9 +439,10 @@ function translitStateSynWithCookie() {
 		var element = document.getElementById(arguments[i]);
 		if(element)
 		{
-			var state = readCookie("tr"+arguments[i]);
-			var enable = DEFAULT_STATE;
-			if(parseInt(state) == 0) { enable=false; }
+			var state = parseInt(readCookie("tr"+arguments[i]));
+			var enable = transettings.default_state;
+			if(state == 1)  enable=true;
+			else if(state==0) enable =false;
 			enableTrasliteration(arguments[i],enable);
 		}
 	}
@@ -362,14 +451,13 @@ function translitStateSynWithCookie() {
 function writingStyleLBChanged(event) {
 	var e = event || window.event;
 	var listBox =  (e.currentTarget || e.srcElement);
-	
-	if(listBox.selectedIndex == 0) {
-		rules = rules0;
-		memrules = memrules0;
-	}
-	else if(listBox.selectedIndex == 1) {
-		rules = rules1;
-		memrules = memrules1;
-	}
+	rules = transettings.schemes[listBox.selectedIndex].rules;
+	memrules = transettings.schemes[listBox.selectedIndex].memrules;
 	setCookie("transToolIndex", listBox.selectedIndex);
+}
+
+function initMultiScheme() {
+	var scheme = transettings.schemes[transettings.default_scheme_index];
+	rules = scheme.rules;
+	memrules = scheme.memrules;
 }
