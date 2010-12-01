@@ -1,13 +1,13 @@
 ﻿/**
- * Trasliteration regular expression rules table for Bengali script
+ * Trasliteration regular expression rules table for Assami script
  * @author Junaid P V ([[user:Junaidpv]])
- * @date 2010-10-18
+ * @date 2010-12-01
  * License: GPLv3, CC-BY-SA 3.0
  */
-var tr_bn = {};
-tr_bn.text = "Transliteration";
+var tr_as = {};
+tr_as.text = "Transliteration";
 // Normal rules
-tr_bn.rules = {
+tr_as.rules = {
 '^([ক-হ])্a$':'$1',
 '^([ক-হ])(a|্A)$':'$1া',
 '^([ক-হ])্i$':'$1ি',
@@ -124,6 +124,6 @@ tr_bn.rules = {
 '^//$':'ঽ'
 };
 // Memorised rules
-tr_bn.memrules = {
+tr_as.memrules = {
 '^ক্h$':['^.*c$','চ্']
 };
