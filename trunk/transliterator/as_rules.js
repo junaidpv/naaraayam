@@ -1,5 +1,5 @@
 ﻿/**
- * Trasliteration regular expression rules table for Assami script
+ * Trasliteration regular expression rules table for Assamese script
  * @author Junaid P V ([[user:Junaidpv]])
  * @date 2010-12-01
  * License: GPLv3, CC-BY-SA 3.0
