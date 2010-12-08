@@ -4,8 +4,11 @@
  * @date 2010-05-19
  * License: GPLv3, CC-BY-SA 3.0
  */
- // Normal rules
- var rules = {
+var tr_ml = {};
+tr_ml.text = "Transliteration";
+tr_ml.description = "Malayalam transliteration";
+// Normal rules
+tr_ml.rules = {
 '^([ക-ഹ])്R$':'$1ൃ',
 '^ന്ന്j$':'ഞ്ഞ്',
 '^ന്ന്g$':'ങ്ങ്',
@@ -318,7 +321,7 @@
 '^\\\\/$':'÷'
 };
 // Memorised rules
-var memrules = {
+tr_ml.memrules = {
 '^ൿh$': ['^.*c$', 'ച്'],
 '^ക്ക്h$': ['^.*cc$', 'ച്ച്'],
 '^ല്പ്p$':['^.*lp$','ൽപ്പ്'],

@@ -6,6 +6,7 @@
  */
 var tr_bn_avro = {};
 tr_bn_avro.text = "Avro";
+tr_bn_avro.description = "Avro transliteration scheme for Begnali";
 // Normal rules
 tr_bn_avro.rules = {
 

@@ -4,8 +4,11 @@
  * @date 2010-11-21
  * License: GPLv3, CC-BY-SA 3.0
  */
+var tr_ta = {};
+tr_ta.text = "எழுத்துபெயர்ப்பு";
+tr_ta.description = "Tamil transliteration";
  // Normal rules
- var rules = {
+tr_ta.rules = {
  //'^(ஸ்ரிi|ஸ்ர்I)':'',
  
 '^([க-ஹ])்a$':'$1',
@@ -98,7 +101,7 @@
 '^1000\\\\$':'\u0BF2'
 };
 // Memorised rules
-var memrules = {
+tr_ta.memrules = {
 '^ச்h$':['^.*h$','ச்ஹ்',],
 '^ழ்h$':['^.*h$','ழ்ஹ்',]
 };

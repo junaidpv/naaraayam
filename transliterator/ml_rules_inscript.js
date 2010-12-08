@@ -4,8 +4,11 @@
  * @date 2010-09-08
  * License: GPLv3
  */
+var tr_ml_inscript = {};
+tr_ml_inscript.text = "InScript";
+tr_ml_inscript.description = "Malayalam InScript";
  // Normal rules
- var rules = {
+tr_ml_inscript.rules = {
 '^`$':'ൊ',
 '^~$':'ഓ',
 '^_$':'ഃ',
@@ -74,5 +77,5 @@
 '^/$':'യ'
 };
 // Memorised rules
-var memrules = {
+tr_ml_inscript.memrules = {
 };
