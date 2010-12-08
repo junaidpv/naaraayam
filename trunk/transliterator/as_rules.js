@@ -6,6 +6,7 @@
  */
 var tr_as = {};
 tr_as.text = "Transliteration";
+tr_as.description = "Transliteration scheme for Assamese";
 // Normal rules
 tr_as.rules = {
 '^([ক-হ])্a$':'$1',

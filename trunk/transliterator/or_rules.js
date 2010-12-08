@@ -4,8 +4,11 @@
  * @date 2010-11-13
  * License: GPLv3, CC-BY-SA 3.0
  */
+var tr_or = {};
+tr_or.text = "Transliteration";
+tr_or.text = "Oriya transliteration";
  // Normal rules
-var rules = {
+tr_or.rules = {
 '^([କ-ହ])୍a$':'$1',
 '^([କ-ହ])(a|୍A)$':'$1ା',
 '^([କ-ହ])୍i$':'$1\u0b3f',
@@ -105,7 +108,7 @@ var rules = {
 '^9$':'୯'
 };
 // Memorised rules
-var memrules = {
+tr_or.memrules = {
 '^କ୍h$':['^.*c$','ଚ୍'],
 '^\\\\([A-Za-z\\>_~\\.0-9])$':['^.*\\\\$','$1']
 };

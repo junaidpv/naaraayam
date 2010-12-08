@@ -6,6 +6,7 @@
  */
 var tr_bn = {};
 tr_bn.text = "Transliteration";
+tr_bn.description = "Normal transliteration for Bengali";
 // Normal rules
 tr_bn.rules = {
 '^([ক-হ])্a$':'$1',

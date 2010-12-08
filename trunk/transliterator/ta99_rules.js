@@ -4,8 +4,11 @@
  * @date 2010-11-20
  * License: GPLv3, CC-BY-SA 3.0
  */
+var tr_ta99 = {};
+tr_ta99.text = "தமிழ்99";
+tr_ta99.description = "Tamil99 input method";
  // Normal rules
- var rules = {
+tr_ta99.rules = {
 '^க்கh$':'க்கக்',
 '^ங்ஙb$':'ங்ஙங்',
 '^ச்ச\\[$':'ச்சச்',
@@ -156,7 +159,7 @@
 '^\\\\9$':'௯'
 };
 // Memorised rules
-var memrules = {
+tr_ta99.memrules = {
 '^([க-ஹ])h$':['^.*a$', '$1க'],
 '^([க-ஹ])b$':['^.*a$', '$1ங'],
 '^([க-ஹ])\\[$':['^.*a$', '$1ச'],

@@ -4,8 +4,11 @@
  * @date 2010-10-12
  * License: GPLv3, CC-BY-SA 3.0
  */
+var tr_sa = {};
+tr_sa.text = "Transliteration";
+tr_sa.description = "Sanskrit transliteration";
  // Normal rules
-var rules = {
+tr_sa.rules = {
 '^([क-ह]़?)्a$':'$1',
 '^([क-ह]़?)्A$':'$1ा',
 '^([क-ह]़?)a$':'$1ा',
@@ -150,7 +153,7 @@ var rules = {
 '^\\`$':'़'
 };
 // Memorised rules
-var memrules = {
+tr_sa.memrules = {
 '^क्h$':['^.*c$','च्'],
 '^\\\\([A-Za-z\\>_~\\.0-9])$':['^.*\\\\$','$1']
 };

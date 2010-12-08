@@ -4,8 +4,11 @@
  * @date 2010-09-29
  * License: GPLv3, CC-BY-SA 3.0
  */
+ var tr_hi = {};
+ tr_hi.text = "Transliteration";
+ tr_hi.description = "Hindi transliteration";
  // Normal rules
- var rules = {
+tr_hi.rules = {
  '^([क-ह])ृओo$':'$1ॄ',
  '^([क-ह])ॢओo$':'$1ॣ',
  
@@ -147,6 +150,6 @@
 '^9$':'९'
 };
 // Memorised rules
-var memrules = {
+tr_hi.memrules = {
 
 };
