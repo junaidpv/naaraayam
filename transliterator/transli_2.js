@@ -49,7 +49,7 @@ transettings.default_state = true;
 transettings.schemes = new Array();
 transettings.default_scheme_index = 0;
 transettings.check_str_length = 6;
-
+transettings.extended_keybord = false;
 // defining to store state info
 var trasliteration_fields = {};
 // memory for previus key sequence
@@ -186,15 +186,15 @@ function replaceTransStringAtCaret(control, oldStringLength, newString, selectio
  * It will return a two memeber array, having given string as first member and replacement string as
  * second memeber. If corresponding replacement could not be found then second string will be too given string
 */
-function transli(lastpart,e)
+function transli(lastpart,e, tr_rules)
 {
-    var rulesCount = rules.length;
+    var rulesCount = tr_rules.length;
     var part1 = lastpart;
     var part2 = lastpart;
     var triple;
     for(var i=0 ; i < rulesCount; i++)
     {
-        triple = rules[i];
+        triple = tr_rules[i];
         var previousKeysMatch = true;
         if(triple[1].length > 0) {
             previousKeysMatch = (new RegExp(triple[1])).test(previous_sequence[(e.currentTarget || e.srcElement).id ]);
@@ -297,7 +297,10 @@ function tiKeyPressed(event) {
     if (e.keyCode) keyCode = e.keyCode;
     else if (e.which) keyCode = e.which;
 
-    var charCode = e.charCode || e.keyCode;
+    //var charCode = e.charCode || e.keyCode;
+    var charCode;
+    if (e.keyCode) charCode = e.keyCode;
+    else if (e.which) charCode = e.which;
 
     var targetElement = (e.currentTarget || e.srcElement);
 
@@ -308,7 +311,7 @@ function tiKeyPressed(event) {
     // If this keystroke is a function key of any kind, do not filter it
     if (e.charCode == 0 || e.which ==0 ) return true;       // Function key (Firefox and Opera), e.charCode for Firefox and e.which for Opera
     // If control or alt or meta key pressed
-    if(e.ctrlKey || e.altKey || e.metaKey) {
+    if(e.ctrlKey || (e.altKey && !transettings.extended_keybord) || e.metaKey) {
         //if (navigator.userAgent.indexOf("Firefox")!=-1) {
         //	return shortKeyPressed(event);
         //}
@@ -333,7 +336,11 @@ function tiKeyPressed(event) {
         else {
             if(!temp_disable[targetElement.id])
             {
-                var transPair = transli(lastSevenChars+c, e);
+                var transPair;
+                if(transettings.extended_keybord && e.altKey) {
+                    transPair = transli(lastSevenChars+c, e, rules_x);
+                }
+                else transPair = transli(lastSevenChars+c, e, rules);
                 oldString = transPair[0];
                 newString = transPair[1];
             }
@@ -354,7 +361,11 @@ function tiKeyPressed(event) {
 
 function tiKeyDown(event) {
     var e = event || window.event;
-    if(e.ctrlKey || e.altKey || e.metaKey) {
+    var targetElement;
+    if(e.target) targetElement=e.target;
+    else if(e.srcElement) targetElement=e.srcElement;
+    if(transettings.extended_keybord && e.altKey && !e.ctrlKey && !e.metaKey && temp_disable[targetElement.id]) stopPropagation(e);
+    else if(e.ctrlKey || e.altKey || e.metaKey) {
         return shortKeyPressed(event);
     }
     return true;
@@ -363,7 +374,7 @@ function tiKeyDown(event) {
  * This is the function to which call during window load event for trasliterating textfields.
  * The funtion will accept any number of HTML tag IDs of textfields.
 */
-function transliterate(id) {
+function transliterate() {
     var len = arguments.length;
     for(var i=0;i<len; i++)
     {
@@ -372,7 +383,6 @@ function transliterate(id) {
         {
             trasliteration_fields[arguments[i]] = transettings.default_state;
             previous_sequence[arguments[i]] = '';
-            //element.onkeypress = tiKeyPressed;
             if (element.addEventListener){
                 element.addEventListener('keydown', tiKeyDown, false);
                 element.addEventListener('keypress', tiKeyPressed, false);
