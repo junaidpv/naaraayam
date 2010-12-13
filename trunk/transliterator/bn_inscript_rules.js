@@ -93,6 +93,7 @@ tr_bn_inscript.rules = [
 ];
 
 // Extended layout for InScript. Works in Firefox only
+tr_bn_inscript.extended_keyboard = true;
 tr_bn_inscript.rules_x = [
 ['F', '', '\u098C'],
 ['\\>', '', '\u09BD'],
