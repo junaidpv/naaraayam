@@ -49,7 +49,7 @@ transettings.default_state = true;
 transettings.schemes = new Array();
 transettings.default_scheme_index = 0;
 transettings.check_str_length = 6;
-transettings.extended_keybord = false;
+transettings.extended_keyboard = false;
 // defining to store state info
 var trasliteration_fields = {};
 // memory for previus key sequence
@@ -313,7 +313,7 @@ function tiKeyPressed(event) {
     // If this keystroke is a function key of any kind, do not filter it
     if (e.charCode == 0 || e.which ==0 ) return true;       // Function key (Firefox and Opera), e.charCode for Firefox and e.which for Opera
     // If control or alt or meta key pressed
-    if(e.ctrlKey || (e.altKey && !transettings.extended_keybord) || e.metaKey) {
+    if(e.ctrlKey || (e.altKey && !transettings.extended_keyboard) || e.metaKey) {
         //if (navigator.userAgent.indexOf("Firefox")!=-1) {
         //	return shortKeyPressed(event);
         //}
@@ -339,7 +339,7 @@ function tiKeyPressed(event) {
             if(!temp_disable[targetElement.id])
             {
                 var transPair;
-                if(transettings.extended_keybord && e.altKey) {
+                if(transettings.extended_keyboard && e.altKey) {
                     transPair = transli(lastSevenChars+c, e, rules_x);
                 }
                 else transPair = transli(lastSevenChars+c, e, rules);
@@ -366,7 +366,7 @@ function tiKeyDown(event) {
     var targetElement;
     if(e.target) targetElement=e.target;
     else if(e.srcElement) targetElement=e.srcElement;
-    if(transettings.extended_keybord && e.altKey && !e.ctrlKey && !e.metaKey && temp_disable[targetElement.id]) stopPropagation(e);
+    if(transettings.extended_keyboard && e.altKey && !e.ctrlKey && !e.metaKey && temp_disable[targetElement.id]) stopPropagation(e);
     else if(e.ctrlKey || e.altKey || e.metaKey) {
         return shortKeyPressed(event);
     }
