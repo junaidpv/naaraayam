@@ -463,7 +463,5 @@ function writingStyleLBChanged(event) {
 }
 
 function initMultiScheme() {
-    var scheme = transettings.schemes[transettings.default_scheme_index];
-    rules = scheme.rules;
-    memrules = scheme.memrules;
+    transettings.scheme = transettings.schemes[transettings.default_scheme_index];
 }
