@@ -457,11 +457,10 @@ function translitStateSynWithCookie() {
 function writingStyleLBChanged(event) {
     var e = event || window.event;
     var listBox =  (e.currentTarget || e.srcElement);
-    rules = transettings.schemes[listBox.selectedIndex].rules;
-    memrules = transettings.schemes[listBox.selectedIndex].memrules;
+    transettings.current_scheme = transettings.schemes[listBox.selectedIndex];
     setCookie("transToolIndex", listBox.selectedIndex);
 }
 
 function initMultiScheme() {
-    transettings.scheme = transettings.schemes[transettings.default_scheme_index];
+    transettings.current_scheme = transettings.schemes[transettings.default_scheme_index];
 }
