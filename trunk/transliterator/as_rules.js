@@ -4,7 +4,8 @@
  * @date 2010-12-01
  * License: GPLv3, CC-BY-SA 3.0
  */
-var tr_as = {};
+if(tr_as== undefined) var tr_as = {};
+else tr_as = {};
 tr_as.text = "Transliteration";
 tr_as.description = "Transliteration scheme for Assamese";
 // Normal rules

@@ -4,7 +4,8 @@
  * @date 2010-10-18
  * License: GPLv3, CC-BY-SA 3.0
  */
-var tr_bn = {};
+if(tr_bn== undefined) var tr_bn = {};
+else tr_bn = {};
 tr_bn.text = "Transliteration";
 tr_bn.description = "Normal transliteration for Bengali";
 // Normal rules

@@ -5,7 +5,8 @@
  * @date 2010-12-12
  * License: GPLv3, CC-BY-SA 3.0
  */
-var tr_bn_inscript = {};
+if(tr_bn_inscript== undefined) var tr_bn_inscript = {};
+else tr_bn_inscript = {};
 tr_bn_inscript.text = "InScript";
 tr_bn_inscript.description = "InScript layout for Bengali";
 // Normal rules

@@ -4,7 +4,8 @@
  * @date 2010-10-12
  * License: GPLv3, CC-BY-SA 3.0
  */
-var tr_sa = {};
+if(tr_sa== undefined) var tr_sa = {};
+else tr_sa = {};
 tr_sa.text = "Transliteration";
 tr_sa.description = "Sanskrit transliteration";
  // Normal rules

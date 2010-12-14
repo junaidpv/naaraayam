@@ -4,7 +4,8 @@
  * @date 2010-12-05
  * License: GPLv3, CC-BY-SA 3.0
  */
-var tr_bn_avro = {};
+if(tr_bn_avro== undefined) var tr_bn_avro = {};
+else tr_bn_avro = {};
 tr_bn_avro.text = "Avro";
 tr_bn_avro.description = "Avro transliteration scheme for Begnali";
 // Normal rules

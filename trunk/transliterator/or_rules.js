@@ -4,7 +4,8 @@
  * @date 2010-11-13
  * License: GPLv3, CC-BY-SA 3.0
  */
-var tr_or = {};
+if(tr_or== undefined) var tr_or = {};
+else tr_or = {};
 tr_or.text = "Transliteration";
 tr_or.text = "Oriya transliteration";
  // Normal rules

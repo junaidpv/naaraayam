@@ -4,7 +4,8 @@
  * @date 2010-05-19 (update: 2010-12-11)
  * License: GPLv3, CC-BY-SA 3.0
  */
-var tr_ml = {};
+if(tr_ml== undefined) var tr_ml = {};
+else tr_ml = {};
 tr_ml.text = "Transliteration";
 tr_ml.description = "Malayalam transliteration";
 // Normal rules
