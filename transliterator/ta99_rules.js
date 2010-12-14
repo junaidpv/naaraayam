@@ -4,7 +4,8 @@
  * @date 2010-11-20
  * License: GPLv3, CC-BY-SA 3.0
  */
-var tr_ta99 = {};
+if(tr_ta99== undefined) var tr_ta99 = {};
+else tr_ta99 = {};
 tr_ta99.text = "தமிழ்99";
 tr_ta99.description = "Tamil99 input method";
  // Normal rules

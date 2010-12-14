@@ -4,7 +4,8 @@
  * @date 2010-12-13
  * License: GPLv3, CC-BY-SA 3.0
  */
-var tr_bn_nkb = {};
+if(tr_bn_nkb== undefined) var tr_bn_nkb = {};
+else tr_bn_nkb = {};
 tr_bn_nkb.text = "NKB";
 tr_bn_nkb.description = "Bengali National Keyboard";
 // Normal rules

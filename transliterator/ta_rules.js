@@ -4,7 +4,8 @@
  * @date 2010-11-21
  * License: GPLv3, CC-BY-SA 3.0
  */
-var tr_ta = {};
+if(tr_ta== undefined) var tr_ta = {};
+else tr_ta = {};
 tr_ta.text = "எழுத்துபெயர்ப்பு";
 tr_ta.description = "Tamil transliteration";
  // Normal rules

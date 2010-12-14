@@ -4,7 +4,8 @@
  * @date 2010-09-29
  * License: GPLv3, CC-BY-SA 3.0
  */
- var tr_hi = {};
+if(tr_hi== undefined) var tr_hi = {};
+else tr_hi = {};
  tr_hi.text = "Transliteration";
  tr_hi.description = "Hindi transliteration";
  // Normal rules

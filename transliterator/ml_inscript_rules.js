@@ -4,7 +4,8 @@
  * @date 2010-09-08
  * License: GPLv3
  */
-var tr_ml_inscript = {};
+if(tr_ml_inscript== undefined) var tr_ml_inscript = {};
+else tr_ml_inscript = {};
 tr_ml_inscript.text = "InScript";
 tr_ml_inscript.description = "Malayalam InScript";
  // Normal rules
