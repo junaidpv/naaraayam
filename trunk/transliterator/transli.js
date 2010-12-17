@@ -6,12 +6,6 @@
  * Last update: 2010-11-28
  * License: GPLv3, CC-BY-SA 3.0
  */
-/**
- * Define your own regular expression rules here. Or include predefined rules before this file.
- * They should be in associative arrays named 'rules' and 'memrules'
- * 'rules' table is for normal rewriting
- * 'memrules' table is for memorised rules
-*/
 
 /** Settings */
 var transettings = {};
