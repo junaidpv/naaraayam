@@ -10,10 +10,11 @@ tr_ml.text = "Transliteration";
 tr_ml.description = "Malayalam transliteration";
 // Normal rules
 tr_ml.rules = [
+['ൻൿh','nc','ഞ്ച്'],
 ['ൿh','c', 'ച്'],
 ['ക്ക്h','cc', 'ച്ച്'],
 ['ല്പ്p','lp','ൽപ്പ്'],
-['ൻൿh','nc','ഞ്ച്'],
+
 ['\\\\([A-Za-z\\>_~])','\\\\','$2'],
 
 ['([ക-ഹ])്R', '', '$2ൃ'],
