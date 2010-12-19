@@ -10,8 +10,8 @@ tr_bn_avro.text = "Avro";
 tr_bn_avro.description = "Avro transliteration scheme for Begnali";
 // Normal rules
 tr_bn_avro.rules = [
-['ররi','[^o`]', 'ঋ'],
 ['([ক-হড়ঢ়য়])্?ররi','[^o`]', '$2ৃ'],
+['ররi','[^o`]', 'ঋ'],
 
 ['(([ক-হড়ঢ়য়])|য়)o','[^o`]', '$2'], // য় cannot be included in the range, why? everywhere else it is OK!
 ['([ক-হড়ঢ়য়])a','[^o`]', '$2া'],
@@ -20,7 +20,6 @@ tr_bn_avro.rules = [
 ['([ক-হড়ঢ়য়])u','[^o`]', '$2ু'],
 ['([ক-হড়ঢ়য়])U','[^o`]', '$2ূ'],
 ['([ক-হড়ঢ়য়])o','[o`]', '$2ু'],
-['([ক-হড়ঢ়য়])ররi','[^o`]', '$2ৃ'],
 ['([ক-হড়ঢ়য়])e','[^o`]', '$2ে'],
 ['([ক-হড়ঢ়য়])োI','[^o`]', '$2ৈ'],
 ['([ক-হড়ঢ়য়])O','[^o`]', '$2ো'],
