@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Trasliteration Tool
  * @author Junaid P V ([[user:Junaidpv]])
  * @date 2010-05-19 (2010-12-10)
@@ -6,12 +6,6 @@
  * Last update: 2010-11-28
  * License: GPLv3, CC-BY-SA 3.0
  */
-/**
- * Define your own regular expression rules here. Or include predefined rules before this file.
- * They should be in associative arrays named 'rules' and 'memrules'
- * 'rules' table is for normal rewriting
- * 'memrules' table is for memorised rules
-*/
 
 /** Settings */
 var transettings = {};
@@ -45,11 +39,12 @@ transettings.checkbox.link.text = '';
 transettings.checkbox.link.tooltip = '';
 // Default tranliteration state
 transettings.default_state = true;
+// set this property 
+// transettings.current_scheme
 // For multi scheme environment
 transettings.schemes = new Array();
 transettings.default_scheme_index = 0;
 transettings.check_str_length = 6;
-transettings.extended_keybord = false;
 // defining to store state info
 var trasliteration_fields = {};
 // memory for previus key sequence
@@ -313,7 +308,7 @@ function tiKeyPressed(event) {
     // If this keystroke is a function key of any kind, do not filter it
     if (e.charCode == 0 || e.which ==0 ) return true;       // Function key (Firefox and Opera), e.charCode for Firefox and e.which for Opera
     // If control or alt or meta key pressed
-    if(e.ctrlKey || (e.altKey && !transettings.extended_keybord) || e.metaKey) {
+    if(e.ctrlKey || (e.altKey && !transettings.current_scheme.extended_keyboard) || e.metaKey) {
         //if (navigator.userAgent.indexOf("Firefox")!=-1) {
         //	return shortKeyPressed(event);
         //}
@@ -339,10 +334,10 @@ function tiKeyPressed(event) {
             if(!temp_disable[targetElement.id])
             {
                 var transPair;
-                if(transettings.extended_keybord && e.altKey) {
-                    transPair = transli(lastSevenChars+c, e, rules_x);
+                if(transettings.current_scheme.extended_keyboard && e.altKey) {
+                    transPair = transli(lastSevenChars+c, e, transettings.current_scheme.rules_x);
                 }
-                else transPair = transli(lastSevenChars+c, e, rules);
+                else transPair = transli(lastSevenChars+c, e, transettings.current_scheme.rules);
                 oldString = transPair[0];
                 newString = transPair[1];
             }
@@ -366,7 +361,7 @@ function tiKeyDown(event) {
     var targetElement;
     if(e.target) targetElement=e.target;
     else if(e.srcElement) targetElement=e.srcElement;
-    if(transettings.extended_keybord && e.altKey && !e.ctrlKey && !e.metaKey && temp_disable[targetElement.id]) stopPropagation(e);
+    if(transettings.current_scheme.extended_keyboard && e.altKey && !e.ctrlKey && !e.metaKey && temp_disable[targetElement.id]) stopPropagation(e);
     else if(e.ctrlKey || e.altKey || e.metaKey) {
         return shortKeyPressed(event);
     }
@@ -456,13 +451,10 @@ function translitStateSynWithCookie() {
 function writingStyleLBChanged(event) {
     var e = event || window.event;
     var listBox =  (e.currentTarget || e.srcElement);
-    rules = transettings.schemes[listBox.selectedIndex].rules;
-    memrules = transettings.schemes[listBox.selectedIndex].memrules;
+    transettings.current_scheme = transettings.schemes[listBox.selectedIndex];
     setCookie("transToolIndex", listBox.selectedIndex);
 }
 
 function initMultiScheme() {
-    var scheme = transettings.schemes[transettings.default_scheme_index];
-    rules = scheme.rules;
-    memrules = scheme.memrules;
+    transettings.current_scheme = transettings.schemes[transettings.default_scheme_index];
 }
