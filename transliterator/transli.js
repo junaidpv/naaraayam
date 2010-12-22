@@ -191,7 +191,7 @@ function transli(lastpart,e, tr_rules)
     {
         triple = tr_rules[i];
         var previousKeysMatch = true;
-        var presentSeq = '(.*)'+triple[0]+'$';
+        var presentSeq = '(.*?)'+triple[0]+'$';
         var replaceSeq = '$1'+triple[2];
         if(triple[1].length > 0) {
             previousKeysMatch = (new RegExp('.*'+triple[1]+'$')).test(previous_sequence[(e.currentTarget || e.srcElement).id ]);
