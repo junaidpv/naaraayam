@@ -10,6 +10,14 @@ tr_kn.text = "Transliteration";
 tr_kn.description = "Transliteration sheme for Kannada";
 // Normal rules
 tr_kn.rules = [
+['ಅa', '', 'ಆ'],
+['ಇi', '', 'ಈ'],
+['(ಉu|ಒo)', '', 'ಊ'],
+['ಋR', '', 'ೠ'],
+['ಅi', '', 'ಐ'],
+['(ಅ|ಒ)u', '', 'ಔ'],
+//['([ಅ-ಔೠೡ]|[ಕ-ಹ](
+
 ['a', '', 'ಅ'],
 ['b', '', 'ಡ್'],
 ['c', '', 'ಚ್'],
