@@ -2,6 +2,9 @@
  * Trasliteration regular expression rules table for Assamese script
  * @author Junaid P V ([[user:Junaidpv]])
  * @date 2010-12-01
+ * @credits Derived from Bengali transiliteration scheme developed with help from
+ * Belayet Hossain, Jayanta Nath and Ragib Hasan
+ * Changes for Assamese suggested by W Chaipau and Prabhakar Sarma Neog
  * License: GPLv3, CC-BY-SA 3.0
  */
 if(tr_as== undefined) var tr_as = {};

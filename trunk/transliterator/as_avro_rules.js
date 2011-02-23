@@ -2,6 +2,7 @@
  * Avro layout regular expression rules table for Assamese script
  * @author Junaid P V ([[user:Junaidpv]])
  * @date 2010-12-05
+ * @credits Derived from Bengali Avro layout by changing the character for Assamese
  * License: GPLv3, CC-BY-SA 3.0
  */
 if(tr_as_avro== undefined) var tr_as_avro = {};

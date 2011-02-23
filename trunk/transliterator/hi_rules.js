@@ -1,6 +1,6 @@
 ﻿/**
  * Trasliteration regular expression rules table for Devanagari
- * @authors: Junaid P V ([[user:Junaidpv]]), Mayur Kumar ([[user:mayur]])
+ * @authors: Junaid P V ([[user:Junaidpv]]) with help from Mayur Kumar ([[user:mayur]])
  * @date 2010-09-29
  * License: GPLv3, CC-BY-SA 3.0
  */
