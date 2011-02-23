@@ -1,7 +1,8 @@
 /**
  * Transliteration regular expression rules table for Sinhala (Singlish)
- * @author Junaid P V ([[user:Junaidpv]]) with help of Nishantha Anuruddha (si.wikipedia.org/wiki/user:බිඟුවා)
+ * @author Junaid P V ([[user:Junaidpv]])
  * @date 2011-02-23
+ * @credits With help from Nishantha Anuruddha (si.wikipedia.org/wiki/user:බිඟුවා)
  * License: GPLv3
  */
  
@@ -14,8 +15,26 @@ tr_si_singlish.rules = [
 ['අa', '', 'ආ'],
 ['ඇa', '', 'ඈ'],
 ['ඉi', '', 'ඊ'],
+['එa', '', 'ඒ'],
+['ඔe', '', 'ඕ'],
+['උu', '', 'ඌ'],
+['අu', '', 'ඖ'],
 
 ['a', '', 'අ'],
 ['A', '', 'ඇ'],
-['i', '', 'ඉ']
+['i', '', 'ඉ'],
+['e', '', 'එ'],
+['o', '', 'ඔ'],
+['u', '', 'උ'],
+['i', '', 'ඉ'],
+['i', '', 'ඉ'],
+['i', '', 'ඉ'],
+['i', '', 'ඉ'],
+['i', '', 'ඉ'],
+['i', '', 'ඉ'],
+['i', '', 'ඉ'],
+['i', '', 'ඉ'],
+['i', '', 'ඉ'],
+['i', '', 'ඉ'],
+['i', '', 'ඉ'],
 ];

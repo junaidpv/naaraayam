@@ -2,6 +2,7 @@
  * Trasliteration regular expression rules table for Bengali script
  * @author Junaid P V ([[user:Junaidpv]])
  * @date 2010-10-18
+ * @credits With help from Belayet Hossain, Jayanta Nath and Ragib Hasan
  * License: GPLv3, CC-BY-SA 3.0
  */
 if(tr_bn== undefined) var tr_bn = {};
