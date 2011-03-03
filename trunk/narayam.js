@@ -1,9 +1,9 @@
 /**
- * Narayam (ISimple Edition)
+ * Narayam (Standalone Edition)
  * Input field rewriter tool for web pages
  * (Based on naaraayam transliteration tool I first wrote on 2010-05-19)
  * Takes ideas added to Narayam extension for Mediawiki that Roan Kattouw helped
- * to improve the tool
+ * to improve and develop
  * @author Junaid P V ([[user:Junaidpv]])(http://junaidpv.in)
  * @date 2010-12-18 
  * @version 3.0
@@ -29,6 +29,11 @@ var narayam = new (function(){
 		shiftKey: false,
 		key: null
 	}
+	// Messages
+	var messages = {
+		narayam-checkbox-tooltip: "Checkbox tooltip",
+		narayam-help-url: "http://junaidpv.in"
+	};
 
 	/* Private functions */
 	/**
@@ -326,27 +331,53 @@ var narayam = new (function(){
 	}
 
 	/* Public functions */
+	
+	/**
+	 * Add more inputs to apply Narayam to
+	 * @param inputs A arry of one or more input or textarea elements
+	 */
+	this.addInputs = function( inputs ) {
+		inputs.concat(inputs);
+		var count = inputs.length;
+		for(var i=0; i < count; i++) {
+			var element = inputs[i];
+			if (element.addEventListener){
+				element.addEventListener('keydown', onkeydown, false);
+				element.addEventListener('keypress', onkeypress, false);
+			} else if (element.attachEvent){
+				element.attachEvent('onkeydown', onkeydown);
+				element.attachEvent("onkeypress", onkeypress);
+			}
+			element.keyBuffer = '';
+		}
+		if ( enabled ) {
+			for(var i=0; i < count; i++) {
+				var element = inputs[i];
+				addClass(element,  'narayam-input');
+			}
+		}
+	};
 
 	this.enable = function() {
 		if ( !enabled && currentScheme !== null ) {
-			$inputs.addClass( 'narayam-input' );
-			$.cookie( 'narayam-enabled', '1', {
-				'path': '/',
-				'expires': 30
-			} );
-			$( '#narayam-toggle' ).attr( 'checked', true );
+                        var count = inputs.length;
+                        for(var i=0; i < count; i++) {
+				addClass(inputs[i], 'narayam-input');
+                         }
+			setCookie('narayam-enabled', '1');
+			document.getElementById( '#narayam-toggle' ).checked = true;
 			enabled = true;
 		}
 	};
 
 	this.disable = function() {
 		if ( enabled ) {
-			$inputs.removeClass( 'narayam-input' );
-			$.cookie( 'narayam-enabled', '0', {
-				'path': '/',
-				'expires': 30
-			} );
-			$( '#narayam-toggle' ).attr( 'checked', false );
+			 var count = inputs.length;
+                        for(var i=0; i < count; i++) {
+				removeClass(inputs[i], 'narayam-input');
+                         }
+			setCookie('narayam-enabled', '0');
+			document.getElementById( '#narayam-toggle' ).checked = false;
 			enabled = false;
 		}
 	};
@@ -358,4 +389,81 @@ var narayam = new (function(){
 			that.enable();
 		}
 	};
+	
+	/**
+	 * Add a transliteration scheme. 
+	 * @param name Name of the scheme, must be unique
+	 * @param data Object with scheme data
+	 * @return True if added, false if not
+	 */
+	this.addScheme = function( name, data ) {
+		if ( name in availableSchemes ) {
+			schemes[name] = data;
+			return true;
+		} else {
+			return false;
+		}
+	};
+
+	
+	this.setScheme = function( name ) {
+		if ( name in schemes ) {
+			currentScheme = schemes[name];
+			select.value=  name ;
+		}
+	};
+	
+	this.setup = function() {
+		// Build scheme dropdown
+		select = document.createElement("select");
+		var haveSchemes = false;
+		for ( var scheme in schemes ) {
+			var option = document.createElement("option");
+			option.value = scheme;
+			option.appendChild( document.createTextNode(scheme.text) );
+			select.appendChild(option);
+			haveSchemes = true;
+		}
+		$select.change( updateSchemeFromSelect );
+		
+		if ( !haveSchemes ) {
+			// No schemes available, don't show the tool
+			return;
+		}
+		
+		// Build enable/disable checkbox and label
+		var checkbox = document.createElement("input");
+		checkbox.type = "checkbox";
+		checkbox.id = "narayam-toggle";
+		checkbox.title = messages.narayam-checkbox-tooltip;
+		checkbox.onclick = this.toggle;
+		
+		var label = document.createElement("label");
+		label.for  = "narayam-toggle";
+		var anchor = document.createElement("a");
+		anchor.title = message.narayam-checkbox-tooltip;
+		anchor.appendChild( document.createTextNode(messages.narayam-toggle-ime + shortcutText()) );
+		
+		var checkboxAndLabel = document.createElement("span");
+		addClass(checkboxAndLabel, 'narayam-toggle-wrapper');
+		checkboxAndLabel.appendChild(checkbox);
+		checkboxAndLabel.appendChild(label);
+		var spanWithEverything = document.createElement("span");
+		addClass(spanWithEverything, 'narayam-wrapper' );
+		spanWithEverything.appendChild(select);
+		spanWithEverything.appendChild(checkboxAndLabel);	
+		
+		// Restore state from cookies
+		var savedScheme = readCookie( 'narayam-scheme' );
+		if ( savedScheme && savedScheme in schemes ) {
+			this.setScheme( savedScheme );
+		} else {
+			select.change();
+		}
+		var enabledCookie = readCookie( 'narayam-enabled' );
+		if ( enabledCookie == '1') ) {
+			this.enable();
+		}
+	};
+
 })();
