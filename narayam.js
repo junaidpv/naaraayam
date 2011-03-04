@@ -13,7 +13,9 @@
 
 var narayam = new (function(){
 	/* Private memebers */
-
+	
+	// Reference to this object
+	var that = this;
 	// text inputs Narayam applies to
 	var inputs = [];
 	// Whether Narayam is enabled
@@ -22,6 +24,8 @@ var narayam = new (function(){
 	var schemes = {};
 	// currently selected scheme
 	var currentScheme = null;
+	// Default scheme to use
+	var defaultScheme = null;
 	// Short cut key
 	var shortcutKey = {
 		altKey: false,
@@ -31,8 +35,9 @@ var narayam = new (function(){
 	}
 	// Messages
 	var messages = {
-		narayam-checkbox-tooltip: "Checkbox tooltip",
-		narayam-help-url: "http://junaidpv.in"
+		'narayam-checkbox-tooltip': "Checkbox tooltip",
+		'narayam-help-url': "http://junaidpv.in",
+		'narayam-toggle-ime': "To toggle IM"
 	};
 
 	/* Private functions */
@@ -97,6 +102,7 @@ var narayam = new (function(){
 		return -1;
 	}
 
+
 	function isShortcutKey( e ) {
 		return e.altKey == shortcutKey.altKey &&
 		e.ctrlKey == shortcutKey.ctrlKey &&
@@ -121,14 +127,16 @@ var narayam = new (function(){
 
 	// stop propagation of given event
 	function stopPropagation(event) {
-		if (event.stopPropagation)
+		if (event.stopPropagation) {
 			// works except IE
 			event.stopPropagation();
-		else
+		}
+		else {
 			// cancel event propagation in IE
 			event.cancelBubble = true;
-	// may need to call
-	//if(event.preventDefault) event.preventDefault();
+		// may need to call
+		}
+		if(event.preventDefault) event.preventDefault();
 	}
 
 	/**
@@ -176,6 +184,31 @@ var narayam = new (function(){
 			start: start,
 			end: end
 		};
+	}
+
+	/**
+	 * IE part from: http://stackoverflow.com/questions/3274843/get-caret-position-in-textarea-ie
+	 */
+	function setCaretPosition (el, iCaretPos)
+	{
+		if (document.selection) // IE
+		{
+			endOffset = startOffset=iCaretPos;
+			var range = el.createTextRange();
+			var startCharMove = offsetToRangeCharacterMove(el, startOffset);
+			range.collapse(true);
+			if (startOffset == endOffset) {
+				range.move("character", startCharMove);
+			} else {
+				range.moveEnd("character", offsetToRangeCharacterMove(el, endOffset));
+				range.moveStart("character", startCharMove);
+			}
+			range.select();
+		}
+		else if (el.selectionStart || el.selectionStart == '0') // Firefox
+		{
+			el.setSelectionRange(iCaretPos, iCaretPos)
+		}
 	}
 
 	/**
@@ -229,14 +262,31 @@ var narayam = new (function(){
 		return unescape(theCookie.substring(ind+cookieName.length+1,ind1));
 	}
 
+	/**
+	 * Firefox textarea scroll top once text replacemetn done.
+	 * This function helps to identify the situation
+	 * @param element Input element in which text replacement taking place
+	 * @return boolean
+	 */
+	function manualScrollNeeded(element) {
+		// If the element is a text area on Firefox, manual scrolling would be needed
+		if (element.tagName.toLowerCase() == 'textarea' && navigator.userAgent.indexOf("Firefox")!=-1) {
+			return true;
+		}
+		return false;
+	}
+
 	function replaceString(element, oldStringLength, newString, selectionRange)
 	{
 		var text = element.value;
 		var newCaretPosition;
+		// Check whether manual need or not
+		var manualScrollNeed = false;
 		// firefox always scrolls to topmost position,
 		// to scroll manually we keep original scroll postion.
-		if(element.scrollTop || element.scrollTop=='0') {
+		if(manualScrollNeeded(element) && (element.scrollTop || element.scrollTop=='0')) {
 			var scrollTop = element.scrollTop;
+			manualScrollNeed = true;
 		}
 		if(text.length  >= 1) {
 			var firstStr = text.substring(0, selectionRange['start'] - oldStringLength + 1);
@@ -250,9 +300,12 @@ var narayam = new (function(){
 			newCaretPosition = newString.length;
 			setCaretPosition(element,newCaretPosition);
 		}
-		// Manually scrolling in firefox, few tweeks or re-writing may require
-		if (navigator.userAgent.indexOf("Firefox")!=-1) {
+		// Manually scrolling in firefox
+		// TODO: find better manul scrolling, few tweeks or re-writing may be required
+		if (manualScrollNeed) {
+			// get total text length
 			var textLength = element.value.length;
+			// get number of columns in the textarea
 			var cols = element.cols;
 			if(newCaretPosition > (textLength-cols)) {
 				//var height = parseInt(window.getComputedStyle(element,null).getPropertyValue('height'));
@@ -270,7 +323,7 @@ var narayam = new (function(){
 			stopPropagation(e);
 			return false; // Not in original code -- does this belong here?
 		} else if ( isShortcutKey( e ) ) {
-			this.toggle();
+			that.toggle();
 			stopPropagation(e);
 			return false;
 		}
@@ -284,7 +337,7 @@ var narayam = new (function(){
 		var code = e.keyCode || e.charCode;
 		if ( code == 8 ) { // Backspace
 			// Blank the keybuffer
-			this.keyBuffer = '';
+			that.keyBuffer = '';
 			return true;
 		}
 
@@ -295,17 +348,18 @@ var narayam = new (function(){
 		}
 
 		var element = e.currentTarget || e.srcElement;
-		var c = String.fromCharCode( e.which );
+		var c = String.fromCharCode( code );
+		var charLength = c.length;
 		// Get the current caret position. The user may have selected text to overwrite,
 		// so get both the start and end position of the selection. If there is no selection,
 		// pos.start and pos.end will be equal.
-		var pos = getCaretPosition(this);
+		var pos = getCaretPosition(element);
 		// Get the last few characters before the one the user just typed,
 		// to provide context for the transliteration regexes.
 		// We need to append c because it hasn't been added to element.text yet
-		var input = lastNChars( element.text, pos.start, currentScheme.lookbackLength ) + c;
-		var keyBuffer = element.keyBuffer;
-		var replacement = transliterate( input, keyBuffer, e.altKey );
+		var input = lastNChars( element.value || '', pos.start, currentScheme.lookbackLength ) + c;
+		var keyBuffer = element.keyBuffer || '';
+		var replacement = transliterate( input , keyBuffer, e.altKey );
 
 		// Update the key buffer
 		keyBuffer += c;
@@ -325,22 +379,38 @@ var narayam = new (function(){
 		input = input.substring( divergingPos );
 		replacement = replacement.substring( divergingPos );
 
-		replaceString(element, input.lenght, replacement, pos)
+		replaceString(element, input.length, replacement, pos)
 		stopPropagation(e);
 		return false;
+	}
+
+	function updateSchemeFromSelect(e) {
+		var scheme = (e.currentTarget || e.srcElement).value;
+		that.setScheme( scheme );
+		setCookie( 'narayam-scheme', scheme );
+	}
+
+	function setAttribute(element, property, value) {
+		if (typeof element.setAttribute === "function") {
+			element.setAttribute( property, "" + value );
+		}
+		else {
+			element[property] = "" + value;
+            
+		}
 	}
 
 	/* Public functions */
 	
 	/**
 	 * Add more inputs to apply Narayam to
-	 * @param inputs A arry of one or more input or textarea elements
+	 * @param inputElements A arry of one or more input or textarea elements
 	 */
-	this.addInputs = function( inputs ) {
-		inputs.concat(inputs);
-		var count = inputs.length;
+	this.addInputs = function( inputElements ) {
+		inputs.concat(Array.prototype.slice.call( inputElements ));
+		var count = inputElements.length;
 		for(var i=0; i < count; i++) {
-			var element = inputs[i];
+			var element = inputElements[i];
 			if (element.addEventListener){
 				element.addEventListener('keydown', onkeydown, false);
 				element.addEventListener('keypress', onkeypress, false);
@@ -348,36 +418,45 @@ var narayam = new (function(){
 				element.attachEvent('onkeydown', onkeydown);
 				element.attachEvent("onkeypress", onkeypress);
 			}
-			element.keyBuffer = '';
+			setAttribute(element, 'keyBuffer', '');
 		}
 		if ( enabled ) {
-			for(var i=0; i < count; i++) {
-				var element = inputs[i];
+			for(i=0; i < count; i++) {
+				element = inputElements[i];
 				addClass(element,  'narayam-input');
 			}
 		}
 	};
 
+	this.setShortcutKey = function(options) {
+		for (var property in options) {
+			if (options.hasOwnProperty(property)) {
+				shortcutKey[property] = options[property];
+			}
+		}
+	}
+
+
 	this.enable = function() {
 		if ( !enabled && currentScheme !== null ) {
-                        var count = inputs.length;
-                        for(var i=0; i < count; i++) {
+			var count = inputs.length;
+			for(var i=0; i < count; i++) {
 				addClass(inputs[i], 'narayam-input');
-                         }
+			}
 			setCookie('narayam-enabled', '1');
-			document.getElementById( '#narayam-toggle' ).checked = true;
+			document.getElementById( 'narayam-toggle' ).checked = true;
 			enabled = true;
 		}
 	};
 
 	this.disable = function() {
 		if ( enabled ) {
-			 var count = inputs.length;
-                        for(var i=0; i < count; i++) {
+			var count = inputs.length;
+			for(var i=0; i < count; i++) {
 				removeClass(inputs[i], 'narayam-input');
-                         }
+			}
 			setCookie('narayam-enabled', '0');
-			document.getElementById( '#narayam-toggle' ).checked = false;
+			document.getElementById( 'narayam-toggle' ).checked = false;
 			enabled = false;
 		}
 	};
@@ -397,12 +476,8 @@ var narayam = new (function(){
 	 * @return True if added, false if not
 	 */
 	this.addScheme = function( name, data ) {
-		if ( name in availableSchemes ) {
-			schemes[name] = data;
-			return true;
-		} else {
-			return false;
-		}
+		schemes[name] = data;
+		return true;
 	};
 
 	
@@ -420,11 +495,16 @@ var narayam = new (function(){
 		for ( var scheme in schemes ) {
 			var option = document.createElement("option");
 			option.value = scheme;
-			option.appendChild( document.createTextNode(scheme.text) );
+			option.appendChild( document.createTextNode(schemes[scheme].text) );
 			select.appendChild(option);
 			haveSchemes = true;
 		}
-		$select.change( updateSchemeFromSelect );
+
+		if (select.addEventListener){
+			select.addEventListener('change', updateSchemeFromSelect, false);
+		} else if (select.attachEvent){
+			select.attachEvent('onchange', updateSchemeFromSelect);
+		}
 		
 		if ( !haveSchemes ) {
 			// No schemes available, don't show the tool
@@ -435,14 +515,15 @@ var narayam = new (function(){
 		var checkbox = document.createElement("input");
 		checkbox.type = "checkbox";
 		checkbox.id = "narayam-toggle";
-		checkbox.title = messages.narayam-checkbox-tooltip;
+		checkbox.title = messages['narayam-checkbox-tooltip'];
 		checkbox.onclick = this.toggle;
 		
 		var label = document.createElement("label");
-		label.for  = "narayam-toggle";
+		label.htmlFor = "narayam-toggle";
 		var anchor = document.createElement("a");
-		anchor.title = message.narayam-checkbox-tooltip;
-		anchor.appendChild( document.createTextNode(messages.narayam-toggle-ime + shortcutText()) );
+		anchor.title = messages['narayam-checkbox-tooltip'];
+		anchor.appendChild( document.createTextNode(messages['narayam-toggle-ime'] + shortcutText()) );
+		label.appendChild(anchor);
 		
 		var checkboxAndLabel = document.createElement("span");
 		addClass(checkboxAndLabel, 'narayam-toggle-wrapper');
@@ -451,19 +532,23 @@ var narayam = new (function(){
 		var spanWithEverything = document.createElement("span");
 		addClass(spanWithEverything, 'narayam-wrapper' );
 		spanWithEverything.appendChild(select);
-		spanWithEverything.appendChild(checkboxAndLabel);	
+		spanWithEverything.appendChild(checkboxAndLabel);
+		document.getElementById("container").appendChild(spanWithEverything);
 		
 		// Restore state from cookies
 		var savedScheme = readCookie( 'narayam-scheme' );
 		if ( savedScheme && savedScheme in schemes ) {
 			this.setScheme( savedScheme );
 		} else {
-			select.change();
+			var autoScheme = defaultScheme ? defaultScheme : select.value;
+			that.setScheme( autoScheme );
+			setCookie( 'narayam-scheme', autoScheme );
 		}
 		var enabledCookie = readCookie( 'narayam-enabled' );
-		if ( enabledCookie == '1') ) {
+		if ( enabledCookie == '1' ) {
 			this.enable();
 		}
+
 	};
 
 })();
