@@ -1,12 +1,45 @@
 <html>
-<head><title>Narayam</title></head>
-<script language="javascript" type="text/javascript" src="narayam.js"></script>
-<script language="javascript" type="text/javascript" src="narayam.rules.ml.js"></script>
-<script language="javascript" type="text/javascript">
+	<head><title>Narayam</title>
+		<style type="text/css">
+			.narayam-input {
+				background-color: lightblue;
+			}
+		</style>
+		<script language="javascript" type="text/javascript" src="narayam.js"></script>
+		<script language="javascript" type="text/javascript" src="narayam.rules.ml.js"></script>
+		<script language="javascript" type="text/javascript" src="narayam.rules.ml-inscript.js"></script>
+		<script language="javascript" type="text/javascript">
+			function narayamOnLoad() {
+				var allInputs = document.getElementsByTagName('input');
+				var count = allInputs.length;
+				var inputs = [];
+				for(var i=0; i < count; i++) {
+					if(allInputs[i].getAttribute('type')==='text' ||
+						allInputs[i].getAttribute('type')==='search' ||
+						allInputs[i].getAttribute('type')==='' ||
+						allInputs[i].getAttribute('type')== undefined) {
+					}
+					inputs.push(allInputs[i]);
+				}
+				narayam.setShortcutKey({ ctrlKey: true, key: 'm'});
+				narayam.addInputs(inputs);
+				narayam.addInputs(document.getElementsByTagName('textarea'));
+				narayam.enabled = true;
+				narayam.setup();
 
-</script>
-<body>
-	<input type="text" />
-	<textarea cols="20" rows="5"></textarea>
-</body>
+			}
+
+			if (window.addEventListener){
+				window.addEventListener('load', narayamOnLoad, false);
+			} else if (window.attachEvent){
+				window.attachEvent('onload', narayamOnLoad);
+			}
+
+		</script>
+	</head>
+	<body>
+		<div id="container"></div>
+		<input type="text" />
+		<textarea cols="20" rows="5"></textarea>
+	</body>
 </html>
