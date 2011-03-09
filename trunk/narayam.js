@@ -487,6 +487,20 @@ var narayam = new (function(){
 			select.value=  name ;
 		}
 	};
+
+	this.getInputs = function() {
+		var inputs = document.getElementsByTagName('input');
+		var textInputs = [];
+		var count = inputs.length;
+		for(var i=0; i < count; i++) {
+			element = inputs[i];
+			if(element.getAttribute('type')==='text' || element.getAttribute('type')==='search' || element.getAttribute('type')==='' || element.getAttribute('type')== undefined) {
+				textInputs.push(element);
+			}
+		}
+		return textInputs;
+
+	}
 	
 	this.setup = function() {
 		// Build scheme dropdown
