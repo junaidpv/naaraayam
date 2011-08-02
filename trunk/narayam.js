@@ -502,7 +502,7 @@ var narayam = new (function(){
 
 	}
 	
-	this.setup = function() {
+	this.setup = function(controlWrapperElementId) {
 		// Build scheme dropdown
 		select = document.createElement("select");
 		var haveSchemes = false;
@@ -547,7 +547,7 @@ var narayam = new (function(){
 		addClass(spanWithEverything, 'narayam-wrapper' );
 		spanWithEverything.appendChild(select);
 		spanWithEverything.appendChild(checkboxAndLabel);
-		document.getElementById("container").appendChild(spanWithEverything);
+		document.getElementById(controlWrapperElementId).appendChild(spanWithEverything);
 		
 		// Restore state from cookies
 		var savedScheme = readCookie( 'narayam-scheme' );
