@@ -1,11 +1,15 @@
 <html>
-	<head><title>Narayam</title>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+		<title>Narayam</title>
 		<style type="text/css">
 			.narayam-input {
 				background-color: lightblue;
 			}
 		</style>
 		<script language="javascript" type="text/javascript" src="narayam.js"></script>
+		<script language="javascript" type="text/javascript" src="narayam.rules.mr.js"></script>
+		<script language="javascript" type="text/javascript" src="narayam.rules.mr-inscript.js"></script>
 		<script language="javascript" type="text/javascript" src="narayam.rules.ml.js"></script>
 		<script language="javascript" type="text/javascript" src="narayam.rules.ml-inscript.js"></script>
 		<script language="javascript" type="text/javascript">
@@ -25,7 +29,7 @@
 				narayam.addInputs(inputs);
 				narayam.addInputs(document.getElementsByTagName('textarea'));
 				narayam.enabled = true;
-				narayam.setup();
+				narayam.setup('narayam-control');
 
 			}
 
@@ -38,7 +42,7 @@
 		</script>
 	</head>
 	<body>
-		<div id="container"></div>
+		<div id="narayam-control"></div>
 		<input type="text" />
 		<textarea cols="20" rows="5"></textarea>
 	</body>
